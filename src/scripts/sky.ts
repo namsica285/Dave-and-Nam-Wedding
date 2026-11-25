@@ -22,7 +22,7 @@ function frame() {
   raf = 0;
   const vh = window.innerHeight;
   // header follows the sky: whichever section sits under it decides light or dark
-  let tone = 'light';
+  let tone = document.documentElement.dataset.toneDefault || 'light';
   for (const s of sections) {
     const r = s.getBoundingClientRect();
     if (r.top <= 40 && r.bottom > 40) {

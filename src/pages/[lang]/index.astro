@@ -5,7 +5,9 @@ import LogoLotus from '../../components/LogoLotus.astro';
 import FoilDefs from '../../components/FoilDefs.astro';
 import Stars from '../../components/Stars.astro';
 import SunsetBand from '../../components/SunsetBand.astro';
-import { art, tips } from '../../data/logo-art';
+import DuneLine from '../../components/DuneLine.astro';
+import { duneCrests } from '../../data/dune';
+import { art } from '../../data/logo-art';
 import { smoothStops } from '../../lib/gradient';
 import { ui, locales, type Locale } from '../../i18n/ui';
 import { event } from '../../data/event';
@@ -18,7 +20,6 @@ const events = event.day;
 // One continuous sky, mixed in OKLab and eased so there are no seams or bands.
 const g2 = smoothStops([['#EEECDD', 0], ['#EEECDD', 0.25], ['#E6D3BD', 0.62], ['#D1A585', 1]]);
 const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
-const [bx, by] = art.base;
 ---
 <Base lang={lang} title="Dave & Nam" night>
   <!-- 1. First light: the logo draws itself, then its watercolor blooms underneath -->
@@ -86,25 +87,20 @@ const [bx, by] = art.base;
     </div>
   </section>
 
-  <!-- 4. Desert night: foil lines join stars into the logo's lotus -->
+  <!-- 4. Desert night: the logo's dune draws itself in foil under the stars; the lotus waits for the reply -->
   <section class="s4" data-tone="dark" aria-labelledby="rsvp-h">
     <Stars count={260} sparkles={16} seed={11} class="stars-night" />
     <div class="wrap night">
-      <svg class="const" viewBox="1560 740 1080 860" aria-hidden="true" data-draw>
-        <FoilDefs id="foil-const" w={700} />
-        <g fill="none" stroke="url(#foil-const)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-          {(['p1', 'p2', 'p3', 'p4'] as const).map((k) => <path class="cl" pathLength="1" d={art[k]} />)}
-          <path class="cl" pathLength="1" d={art.stem} />
-        </g>
-        {[...tips, [bx, by]].map(([x, y], i) => (
-          <g transform={`translate(${x} ${y})`}>
+      <DuneLine gid="foil-const" sw={9} class="const" data-draw>
+        {duneCrests.map(([x, y], i) => (
+          <g transform={`translate(${x} ${y - 70})`}>
             <g class="cstar" style={`--i:${i}`}>
-              <circle r="38" fill="#F4DAC1" opacity=".18" />
-              <path d="M0 -34 C2 -7 7 -2 34 0 C7 2 2 7 0 34 C-2 7 -7 2 -34 0 C-7 -2 -2 -7 0 -34Z" fill="#FFF6EA" />
+              <circle r="34" fill="#F4DAC1" opacity=".18" />
+              <path d="M0 -30 C2 -6 6 -2 30 0 C6 2 2 6 0 30 C-2 6 -6 2 -30 0 C-6 -2 -2 -6 0 -30Z" fill="#FFF6EA" />
             </g>
           </g>
         ))}
-      </svg>
+      </DuneLine>
       <BiHeading id="rsvp-h" level="h2" en="Kindly Reply" vi="Hồi Âm" {lang} dark />
       <p class="by">{t.replyBy}</p>
       <a class="btn on-dark-btn" href={`/${lang}/rsvp/`}>RSVP</a>
@@ -163,8 +159,8 @@ const [bx, by] = art.base;
   /* 4 night */
   .s4{background:var(--night);color:var(--ivory);padding-block:clamp(4rem,10vw,8rem);overflow:hidden}
   .night{position:relative;display:grid;justify-items:center;text-align:center;gap:1.25rem}
-  .const{width:min(80%,22rem);height:auto;overflow:visible;margin-bottom:.5rem}
-  .cl{stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1));filter:drop-shadow(0 0 6px rgba(255,230,205,.55))}
+    :global(.const){width:min(92%,34rem);margin-bottom:1rem}
+  :global(.const .dl){stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1));filter:drop-shadow(0 0 6px rgba(255,230,205,.55))}
   .cstar{transform-box:fill-box;transform-origin:center;opacity:calc(var(--draw,1) * 1);animation:cpulse 4s var(--ease-in-out) infinite;animation-delay:calc(var(--i) * -.8s)}
   @keyframes cpulse{0%,100%{transform:scale(.75) rotate(0)}50%{transform:scale(1.1) rotate(30deg)}}
   .by{font:600 var(--step-label)/1.4 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--copper-light);margin:0 auto 1rem}
