@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import BiHeading from '../../components/BiHeading.astro';
 import LogoLotus from '../../components/LogoLotus.astro';
+import Stage from '../../components/Stage.astro';
+import SunsetBand from '../../components/SunsetBand.astro';
 import { locales, type Locale } from '../../i18n/ui';
 import { zelle } from '../../data/gifts';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
@@ -26,7 +28,9 @@ const c = {
   thanks: { en: 'Thank you for celebrating with us.', vi: 'Cảm ơn quý vị đã chung vui cùng chúng tôi.' },
 };
 ---
-<Base lang={lang} page="gifts" title={lang === 'en' ? 'Gifts' : 'Mừng Cưới'}>
+<Base lang={lang} page="gifts" night title={lang === 'en' ? 'Gifts' : 'Mừng Cưới'}>
+  <!-- Day: the tradition, in plain light -->
+  <Stage sky="day">
   <section class="top">
     <div class="wrap intro">
       <LogoLotus gid="foil-gift" open={1} sw={26} light class="gift-lotus" />
@@ -36,6 +40,10 @@ const c = {
     </div>
   </section>
 
+  </Stage>
+
+  <!-- Golden hour: the ways to give -->
+  <Stage sky="golden">
   <section class="wrap ways">
     <div class="way">
       <BiHeading level="h2" en={c.boxH[0]} vi={c.boxH[1]} {lang} />
@@ -67,23 +75,31 @@ const c = {
     </div>
   </section>
 
+  </Stage>
+
+  <SunsetBand compact id="foil-range-g" />
+
+  <!-- Night: a lotus blooms open under the stars as you arrive, our thank-you -->
+  <Stage sky="night" fade seed={17}>
   <section class="wrap thanks">
-    <hr class="foil-line" />
+    <LogoLotus gid="foil-thanks" open={1} sw={24} class="thanks-lotus" data-open-from="0.15" data-open-to="1" />
     <p>{c.thanks[lang]}</p>
+    <hr class="foil-line" />
   </section>
+  </Stage>
 </Base>
 
 <style>
   h1{font-size:var(--step-3)}
   h2{font-size:var(--step-2)}
   :global(.bi.one .vi){display:none}
-  .top{background:linear-gradient(to bottom,var(--ivory) 30%,#E9DCC8);padding-block:clamp(3rem,8vw,5.5rem)}
+  .top{padding-block:clamp(3rem,8vw,5.5rem) clamp(1rem,3vw,2rem)}
   .intro{display:grid;justify-items:center;text-align:center;gap:1.25rem}
   :global(.gift-lotus){width:6rem;height:6.5rem}
   .lead{font-family:var(--font-display);font-size:var(--step-1);line-height:1.35;margin:.5rem auto 0;max-width:34ch;text-wrap:balance}
   .body{margin:0 auto;max-width:60ch;color:var(--muted)}
 
-  .ways{display:grid;gap:clamp(2.5rem,6vw,4rem);padding-block:clamp(3rem,7vw,5rem);max-width:48rem}
+  .ways{display:grid;gap:clamp(2.5rem,6vw,4rem);padding-block:clamp(3rem,7vw,5rem) clamp(4rem,9vw,7rem);max-width:48rem}
   .way p{margin:1rem 0 0}
   .soft{color:var(--muted)}
   .codes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:1rem;margin-top:1.5rem}
@@ -100,7 +116,8 @@ const c = {
   .reveal img{width:min(100%,15rem);height:auto;border-radius:8px}
   :focus-visible{outline-offset:4px}
 
-  .thanks{display:grid;justify-items:center;text-align:center;gap:1.25rem;padding-block:1rem 2rem}
+  .thanks{display:grid;justify-items:center;text-align:center;gap:1.5rem;padding-block:clamp(4rem,10vw,7rem)}
+  :global(.thanks-lotus){width:8rem;height:8.6rem}
   .thanks .foil-line{width:min(16rem,60%)}
-  .thanks p{margin:0;font-family:var(--font-display);font-size:var(--step-1)}
+  .thanks p{margin:0;font-family:var(--font-display);font-size:var(--step-2);text-wrap:balance}
 </style>

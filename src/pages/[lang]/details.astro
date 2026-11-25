@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import BiHeading from '../../components/BiHeading.astro';
 import LogoLotus from '../../components/LogoLotus.astro';
+import Stage from '../../components/Stage.astro';
+import SunsetBand from '../../components/SunsetBand.astro';
 import { ui, locales, type Locale } from '../../i18n/ui';
 import { event } from '../../data/event';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
@@ -18,7 +20,9 @@ const copy = {
   travel: { en: 'Travel and lodging details are coming soon: nearby hotels, getting there, and what to pack for a February evening in the desert.', vi: 'Thông tin đi lại và lưu trú sẽ sớm có: khách sạn gần đó, cách đến nơi, và nên mang gì cho một buổi tối tháng Hai trên sa mạc.' },
 };
 ---
-<Base lang={lang} page="details" title={lang === 'en' ? 'Details' : 'Chi Tiết'}>
+<Base lang={lang} page="details" night title={lang === 'en' ? 'Details' : 'Chi Tiết'}>
+  <!-- Day: the facts, in plain afternoon light -->
+  <Stage sky="day">
   <section class="top">
     <div class="wrap">
       <BiHeading level="h1" en="Details" vi="Chi Tiết" {lang} />
@@ -40,6 +44,10 @@ const copy = {
     </div>
   </section>
 
+  </Stage>
+
+  <!-- Golden hour: the ceremony happens as the light turns warm -->
+  <Stage sky="golden">
   <section class="wrap order" aria-labelledby="order-h">
     <BiHeading id="order-h" level="h2" en="Order of Ceremony" vi="Nghi Thức Hôn Lễ" {lang} />
     <ol>
@@ -61,29 +69,40 @@ const copy = {
     </ol>
   </section>
 
+  </Stage>
+
+  <SunsetBand compact id="foil-range-d" />
+
+  <!-- Dusk: dinner and dancing under the first stars -->
+  <Stage sky="dusk" seed={9}>
   <section class="wrap duo">
     <div>
-      <BiHeading level="h2" en="Reception" vi="Tiệc Cưới" {lang} />
+      <BiHeading level="h2" en="Reception" vi="Tiệc Cưới" {lang} dark />
       <p>{copy.reception[lang]}</p>
       <p class="soft">{copy.menu[lang]}</p>
     </div>
     <div>
-      <BiHeading level="h2" en="Travel & Stay" vi="Đi Lại & Lưu Trú" {lang} />
+      <BiHeading level="h2" en="Travel & Stay" vi="Đi Lại & Lưu Trú" {lang} dark />
       <p class="soft">{copy.travel[lang]}</p>
     </div>
   </section>
 
+  </Stage>
+
+  <!-- Night: the reply, under the full desert sky -->
+  <Stage sky="night" seed={13}>
   <section class="wrap reply">
     <hr class="foil-line" />
     <p>{event.rsvpBy[lang]}</p>
     <a class="btn" href={`/${lang}/rsvp/`}>{lang === 'en' ? 'Kindly Reply' : 'Hồi Âm'}</a>
   </section>
+  </Stage>
 </Base>
 
 <style>
   h1{font-size:var(--step-3)}
   h2{font-size:var(--step-2)}
-  .top{background:linear-gradient(to bottom,var(--ivory) 30%,#E9DCC8);padding-block:clamp(3rem,8vw,5.5rem) clamp(2rem,5vw,3.5rem)}
+  .top{padding-block:clamp(3rem,8vw,5.5rem) clamp(1rem,3vw,2rem)}
   .tent{margin-top:1.5rem;padding:.9rem 1.2rem;border:1px solid color-mix(in srgb,var(--copper) 45%,transparent);border-radius:14px;background:color-mix(in srgb,var(--ivory) 70%,transparent);color:var(--copper-ink);max-width:44rem}
 
   .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:clamp(2rem,5vw,4rem);padding-block:clamp(3rem,7vw,5rem)}
@@ -92,24 +111,27 @@ const copy = {
   .big{font-family:var(--font-display);font-size:var(--step-1);line-height:1.25;margin-top:.6rem!important}
   .fact .btn{justify-self:start;margin-top:.9rem}
 
-  .order{padding-block:clamp(2rem,6vw,4rem)}
+  .order{padding-block:clamp(3rem,7vw,5rem) clamp(4rem,9vw,7rem)}
   ol{list-style:none;margin:2.5rem 0 0;padding:0;display:grid;gap:1.6rem;position:relative;max-width:40rem}
-  ol::before{content:"";position:absolute;left:1.15rem;top:.6rem;bottom:.6rem;width:2px;background:var(--foil-v) 0 0/100% 480px repeat-y;animation:glint-v 9s linear infinite}
+  /* the copper thread runs between the marks, never under them */
+  li:not(:last-child)::after{content:"";position:absolute;left:1.15rem;top:2.1rem;bottom:-1.3rem;width:2px;background:var(--foil-v) 0 0/100% 480px repeat-y;animation:glint-v 9s linear infinite}
+  li.tea:not(:last-child)::after{top:3.2rem}
+  li:has(+ li.tea)::after{bottom:-.9rem}
   @keyframes glint-v{to{background-position:0 480px}}
   li{display:grid;grid-template-columns:2.4rem 1fr;gap:1.1rem;align-items:start;position:relative}
-  .mark{width:1.1rem;height:1.1rem;margin:.35rem 0 0 .65rem;fill:var(--copper);background:var(--ivory);border-radius:50%;box-shadow:0 0 0 6px var(--ivory)}
-  :global(.tea-lotus){width:3.2rem;height:3.5rem;margin-left:-.35rem;margin-top:-.6rem;background:var(--ivory);border-radius:40%}
+  .mark{width:1.1rem;height:1.1rem;margin:.35rem 0 0 .65rem;fill:var(--copper)}
+  :global(.tea-lotus){width:3.2rem;height:3.5rem;margin-left:-.35rem;margin-top:-.6rem}
   .name{display:block;font-family:var(--font-display);font-size:var(--step-1);line-height:1.2}
   .alt{display:block;color:var(--copper-ink);font-weight:500;margin-top:.1rem}
   .note{margin:.6rem 0 0;color:var(--muted)}
   li.tea .name{color:var(--green)}
 
-  .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:clamp(2rem,5vw,4rem);padding-block:clamp(3rem,7vw,5rem)}
+  .duo{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:clamp(2rem,5vw,4rem);padding-block:clamp(3rem,7vw,5rem)}
   .duo p{margin:1rem 0 0}
   .soft{color:var(--muted)}
 
-  .reply{display:grid;justify-items:center;text-align:center;gap:1.25rem;padding-block:1rem 2rem}
+  .reply{display:grid;justify-items:center;text-align:center;gap:1.25rem;padding-block:clamp(4rem,10vw,7rem)}
   .reply .foil-line{width:min(16rem,60%)}
   .reply p{margin:0;font-family:var(--font-display);font-size:var(--step-1);text-wrap:balance}
-  @media (prefers-reduced-motion:reduce){ol::before{animation:none}}
+  @media (prefers-reduced-motion:reduce){li::after{animation:none}}
 </style>

@@ -4,6 +4,7 @@ import BiHeading from '../../components/BiHeading.astro';
 import LogoLotus from '../../components/LogoLotus.astro';
 import FoilDefs from '../../components/FoilDefs.astro';
 import Stars from '../../components/Stars.astro';
+import SunsetBand from '../../components/SunsetBand.astro';
 import { art, tips } from '../../data/logo-art';
 import { smoothStops } from '../../lib/gradient';
 import { ui, locales, type Locale } from '../../i18n/ui';
@@ -16,7 +17,6 @@ const events = event.day;
 
 // One continuous sky, mixed in OKLab and eased so there are no seams or bands.
 const g2 = smoothStops([['#EEECDD', 0], ['#EEECDD', 0.25], ['#E6D3BD', 0.62], ['#D1A585', 1]]);
-const gBlend = smoothStops([['#D1A585', 0], ['#C99573', 0.3], ['#C08464', 0.5], ['#9A6B63', 0.68], ['#6E4F5C', 0.84], ['#4E3D4E', 1]], 14);
 const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
 const [bx, by] = art.base;
 ---
@@ -73,15 +73,8 @@ const [bx, by] = art.base;
     </div>
   </section>
 
-  <!-- sunset: dune into plum behind the Catalinas, no text so contrast never fails -->
-  <div class="blend" data-tone="split:0.5" aria-hidden="true" style={`background:radial-gradient(ellipse 70% 38% at 50% 74%, rgba(255,226,196,.55), rgba(255,226,196,0) 70%), linear-gradient(to bottom, ${gBlend})`}>
-    <svg class="range" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
-      <FoilDefs id="foil-range" w={800} />
-      <path fill="#6E4F5C" fill-opacity=".55" d="M0 250 C140 200 230 150 330 160 C420 170 470 90 590 80 C700 70 760 150 860 140 C960 130 1010 40 1120 50 C1220 60 1270 140 1370 130 C1460 122 1540 90 1600 100 L1600 420 L0 420Z" />
-      <path fill="#4E3D4E" d="M0 320 C120 280 210 240 310 248 C400 256 450 198 550 190 C640 183 700 238 800 230 C900 222 950 150 1050 142 C1140 135 1200 205 1290 210 C1380 215 1440 175 1520 182 C1560 186 1585 196 1600 200 L1600 420 L0 420Z" />
-      <path class="rim" fill="none" stroke="url(#foil-range)" stroke-width="2" vector-effect="non-scaling-stroke" d="M0 320 C120 280 210 240 310 248 C400 256 450 198 550 190 C640 183 700 238 800 230 C900 222 950 150 1050 142 C1140 135 1200 205 1290 210 C1380 215 1440 175 1520 182 C1560 186 1585 196 1600 200" />
-    </svg>
-  </div>
+  <!-- sunset: dune into plum behind the Catalinas -->
+  <SunsetBand />
 
   <!-- 3. Dusk: like a real lotus at evening, the flower gently closes -->
   <section class="s3" data-tone="dark" aria-labelledby="story-h" style={`background:linear-gradient(to bottom, ${g3})`}>
@@ -158,10 +151,6 @@ const [bx, by] = art.base;
   .where{margin:3rem 0 1.5rem;font:500 var(--step-0)/1.6 var(--font-body);color:var(--green)}
   .where span{color:var(--copper-ink)}
 
-  /* sunset band */
-  .blend{position:relative;height:max(clamp(26rem,85vh,52rem),calc(100vw * .2625 + 14rem))}
-  .range{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:max(calc(100vw * .2625),42%)}
-  .rim{filter:drop-shadow(0 0 3px rgba(255,236,214,.55))}
 
   /* 3 dusk */
   .s3{color:var(--ivory);padding-block:clamp(2rem,6vw,4rem) clamp(4rem,10vw,7rem)}
