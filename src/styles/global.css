@@ -35,3 +35,7 @@ img{max-width:100%;height:auto;display:block}
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none}
 }
+
+/* night tone: home page ends in the desert night */
+body.tone-night{--bg:var(--night);--fg:var(--ivory)}
+body.tone-night footer .meta{color:var(--copper-light)}

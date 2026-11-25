@@ -5,8 +5,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { ui, type Locale } from '../i18n/ui';
 
-interface Props { lang: Locale; title: string; page?: string; description?: string }
-const { lang, title, page = '', description = 'Dave & Nam, February 18, 2028, Oro Valley, Arizona' } = Astro.props;
+interface Props { lang: Locale; title: string; page?: string; description?: string; night?: boolean }
+const { lang, title, page = '', night = false, description = 'Dave & Nam, February 18, 2028, Oro Valley, Arizona' } = Astro.props;
 const t = ui[lang];
 ---
 <!doctype html>
@@ -23,10 +23,11 @@ const t = ui[lang];
     <link rel="preload" href="/fonts/montserrat-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <ClientRouter />
   </head>
-  <body>
+  <body class:list={{ 'tone-night': night }}>
     <a class="skip" href="#main">{t.skip}</a>
     <Header lang={lang} page={page} />
     <main id="main" tabindex="-1"><slot /></main>
     <Footer lang={lang} />
+    <script>import '../scripts/sky.ts';</script>
   </body>
 </html>

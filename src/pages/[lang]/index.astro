@@ -1,23 +1,145 @@
 ---
 import Base from '../../layouts/Base.astro';
+import BiHeading from '../../components/BiHeading.astro';
+import Lotus from '../../components/Lotus.astro';
+import FoilDefs from '../../components/FoilDefs.astro';
 import { ui, locales, type Locale } from '../../i18n/ui';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
 const lang = Astro.params.lang as Locale;
 const t = ui[lang];
+
+const events = [
+  { en: 'Welcome', vi: 'Đón Khách', to: 0.2 },
+  { en: 'Tea ceremony', vi: 'Lễ Dâng Trà', to: 0.5 },
+  { en: 'Ceremony', vi: 'Lễ Thành Hôn', to: 1 },
+  { en: 'Sunset', vi: 'Hoàng Hôn', to: 1.15, note: t.sunsetNote },
+];
+
+// deterministic star field so every build looks the same
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const stars = Array.from({ length: 140 }, () => ({
+  x: +(rnd() * 100).toFixed(2), y: +(rnd() * 100).toFixed(2),
+  r: +(0.6 + rnd() * 1.4).toFixed(2), tw: rnd() < 0.14, d: +(rnd() * 6).toFixed(1),
+}));
+const pts = [-55, -27, 0, 27, 55].map((s) => {
+  const a = ((s - 90) * Math.PI) / 180; const L = (s === 0 ? 150 : 124);
+  return [+(200 + Math.cos(a) * L).toFixed(1), +(215 + Math.sin(a) * L).toFixed(1)];
+});
 ---
-<Base lang={lang} title={lang === 'en' ? 'Dave & Nam' : 'Dave & Nam'}>
-  <section class="hero wrap">
-    <img src="/brand/DN-monogram-light.webp" width="1200" height="1000" alt="DN monogram with a copper-line lotus" class="mark" />
-    <h1 class="names">Dave &amp; Nam</h1>
-    <hr class="foil-line" />
-    <p class="when">{t.date}<br />{t.place}</p>
-    <a class="btn" href={`/${lang}/rsvp/`}>{lang === 'en' ? 'Kindly Reply' : 'Hồi Âm'}</a>
+<Base lang={lang} title="Dave & Nam" night>
+  <!-- 1. First light -->
+  <section class="s1" data-tone="light" aria-label={lang === 'en' ? 'First light' : 'Bình minh'}>
+    <div class="wrap hero">
+      <svg class="ridge" viewBox="0 0 1200 520" role="img" aria-label={lang === 'en' ? 'A copper line follows the Catalina ridge and rises into a lotus' : 'Một đường đồng chạy theo dãy núi Catalina rồi nở thành hoa sen'}>
+        <FoilDefs id="foil-ridge" w={600} light />
+        <path class="draw" pathLength="1" fill="none" stroke="url(#foil-ridge)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+          d="M0 430 L70 410 L130 424 L205 372 L262 394 L330 340 L392 366 L470 318 L520 338 L596 296 L650 322 L724 280 L772 300 L830 262 L868 238 C884 224 892 210 894 190 L896 166" />
+        <Lotus gid="foil-hero-lotus" x={816} y={30} size={160} draw light delay={1.9} sw={1.6} />
+      </svg>
+      <h1 class="names">Dave &amp; Nam</h1>
+      <p class="when">{t.date}<br />{t.place}</p>
+      <p class="cue" aria-hidden="true">{t.scroll}</p>
+    </div>
+  </section>
+
+  <!-- 2. Golden hour -->
+  <section class="s2" data-tone="light" aria-labelledby="day-h">
+    <div class="wrap">
+      <BiHeading id="day-h" level="h2" en="The Day" vi="Ngày Trọng Đại" {lang} />
+      <ol class="events">
+        {events.map((e, i) => (
+          <li class="ev" data-open-from="0" data-open-to={e.to}>
+            <Lotus gid={`foil-ev-${i}`} open={e.to} sw={2.4} light class="bud" />
+            <div>
+              <BiHeading level="h3" en={e.en} vi={e.vi} {lang} />
+              <p class="meta">{e.note ?? t.tba}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- blend: dune into plum, no text so contrast never fails -->
+  <div class="blend" data-tone="light" aria-hidden="true"></div>
+
+  <!-- 3. Dusk -->
+  <section class="s3" data-tone="dark" aria-labelledby="story-h">
+    <div class="wrap dusk">
+      <Lotus gid="foil-dusk" open={1} sw={2} class="dusk-lotus" />
+      <div data-open-from="1" data-open-to="0.3" class="dusk-wrap">
+        <BiHeading id="story-h" level="h2" en="Our Story" vi="Chuyện Tình Yêu" {lang} dark />
+      </div>
+      <a class="btn on-dark-btn" href={`/${lang}/story/`}>{t.readStory}</a>
+    </div>
+  </section>
+
+  <!-- 4. Desert night -->
+  <section class="s4" data-tone="dark" aria-labelledby="rsvp-h">
+    <svg class="field" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      {stars.map((s) => (
+        <circle cx={s.x} cy={s.y} r={s.r * 0.12} fill="#EEECDD" class:list={{ tw: s.tw }} style={s.tw ? `animation-delay:${s.d}s` : undefined} />
+      ))}
+    </svg>
+    <div class="wrap night" data-draw>
+      <svg class="const" viewBox="0 0 400 260" aria-hidden="true">
+        <FoilDefs id="foil-const" w={400} />
+        {pts.map(([x, y]) => <line class="cl" pathLength="1" x1="200" y1="215" x2={x} y2={y} />)}
+        {pts.slice(1).map(([x, y], i) => <line class="cl" pathLength="1" x1={pts[i][0]} y1={pts[i][1]} x2={x} y2={y} />)}
+        {[...pts, [200, 215]].map(([x, y]) => <circle class="dot" cx={x} cy={y} r="3.5" />)}
+      </svg>
+      <BiHeading id="rsvp-h" level="h2" en="Kindly Reply" vi="Hồi Âm" {lang} dark />
+      <p class="by">{t.replyBy}</p>
+      <a class="btn on-dark-btn" href={`/${lang}/rsvp/`}>RSVP</a>
+    </div>
   </section>
 </Base>
+
 <style>
-  .hero{display:grid;justify-items:center;text-align:center;gap:1.25rem;padding-block:clamp(2rem,6vw,5rem)}
-  .mark{width:min(88vw,30rem);height:auto}
-  .names{font-size:var(--step-4)}
-  .hero .foil-line{width:min(60%,14rem)}
-  .when{font:500 var(--step--1)/1.9 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-deep);margin:0}
+  /* shared */
+  section{position:relative}
+  h1,h2{font-size:var(--step-3)}
+  h3{font-size:var(--step-1)}
+  .meta{font:500 var(--step--1)/1.5 var(--font-body);letter-spacing:.06em;color:var(--copper-deep);margin:.35rem 0 0}
+
+  /* 1 first light */
+  .s1{background:var(--ivory);color:var(--green);min-height:calc(100svh - 4.25rem);display:grid;align-items:end}
+  .hero{display:grid;justify-items:center;text-align:center;gap:.5rem;padding-top:1.5rem;padding-bottom:clamp(2rem,5vw,4rem)}
+  .ridge{width:min(100%,64rem);height:auto;overflow:visible}
+  .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:ridge 2.6s cubic-bezier(.65,0,.35,1) .2s both}
+  @keyframes ridge{to{stroke-dashoffset:0}}
+  .names{font-size:var(--step-4);animation:rise .9s var(--ease-out) 1.7s both}
+  .when{font:500 var(--step--1)/1.9 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-deep);margin:0 auto;animation:rise .9s var(--ease-out) 1.95s both}
+  .cue{font:500 .7rem/1 var(--font-body);letter-spacing:.3em;text-transform:uppercase;color:var(--copper-deep);margin:1.5rem auto 0;animation:rise .9s var(--ease-out) 2.4s both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);filter:blur(2px)}}
+
+  /* 2 golden hour */
+  .s2{background:linear-gradient(to bottom,var(--ivory),var(--dune-light));color:var(--green);padding-block:clamp(4rem,10vw,8rem)}
+  .events{list-style:none;margin:3rem 0 0;padding:0 0 0 0;display:grid;gap:clamp(2.5rem,7vw,5rem);position:relative;max-width:36rem}
+  .events::before{content:"";position:absolute;left:2.25rem;top:1rem;bottom:1rem;width:2px;background:var(--foil);background-size:100% 200%}
+  .ev{display:grid;grid-template-columns:4.5rem 1fr;gap:1.25rem;align-items:center}
+  :global(.bud){width:4.5rem;height:4.5rem}
+
+  .blend{height:clamp(14rem,40vh,26rem);background:linear-gradient(to bottom,var(--dune-light),var(--dune) 40%,var(--plum))}
+
+  /* 3 dusk */
+  .s3{background:linear-gradient(to bottom,var(--plum),var(--night));color:var(--ivory);padding-block:clamp(3rem,8vw,6rem)}
+  .dusk{display:grid;justify-items:center;text-align:center;gap:1.75rem}
+  :global(.dusk-lotus){width:7rem;height:7rem}
+  .on-dark-btn{border-color:var(--copper-light);color:var(--ivory)}
+  @media (hover:hover) and (pointer:fine){.on-dark-btn:hover{background:var(--ivory);color:var(--green)}}
+
+  /* 4 night */
+  .s4{background:var(--night);color:var(--ivory);padding-block:clamp(5rem,12vw,9rem);overflow:hidden}
+  .field{position:absolute;inset:0;width:100%;height:100%}
+  .tw{animation:twinkle 5s ease-in-out infinite}
+  @keyframes twinkle{50%{opacity:.25}}
+  .night{position:relative;display:grid;justify-items:center;text-align:center;gap:1.25rem}
+  .const{width:min(100%,26rem);height:auto;margin-bottom:1rem}
+  .cl{stroke:url(#foil-const);stroke-width:1.4;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1))}
+  .dot{fill:var(--foil-4);opacity:calc(.35 + .65 * var(--draw,1))}
+  .by{font:500 var(--step--1)/1 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-light);margin:0 auto 1rem}
+
+  @media (prefers-reduced-motion:reduce){.tw{animation:none}}
 </style>

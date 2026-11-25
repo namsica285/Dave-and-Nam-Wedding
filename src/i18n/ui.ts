@@ -13,6 +13,11 @@ export const ui = {
     date: 'February 18, 2028',
     place: 'Oro Valley, Arizona',
     footer: 'With love, Dave & Nam',
+    scroll: 'Scroll',
+    tba: 'Time and place to be announced',
+    sunsetNote: 'Sunset, about 6:11 PM',
+    readStory: 'Read our story',
+    replyBy: 'By January 15, 2028',
   },
   vi: {
     nav: { home: 'Trang Chủ', details: 'Chi Tiết', story: 'Chuyện Tình Yêu', gifts: 'Mừng Cưới', faq: 'Hỏi Đáp', rsvp: 'Hồi Âm' },
@@ -25,6 +30,11 @@ export const ui = {
     date: '18 tháng 2, 2028',
     place: 'Oro Valley, Arizona',
     footer: 'Với tình yêu, Dave & Nam',
+    scroll: 'Cuộn xuống',
+    tba: 'Giờ và địa điểm sẽ được thông báo',
+    sunsetNote: 'Hoàng hôn, khoảng 6:11 chiều',
+    readStory: 'Đọc chuyện của chúng tôi',
+    replyBy: 'Trước ngày 15 tháng 1, 2028',
   },
 } as const;
 
