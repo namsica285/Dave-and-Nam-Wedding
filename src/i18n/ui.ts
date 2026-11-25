@@ -53,7 +53,7 @@ export type PageSlug = (typeof pages)[number];
 /** Bilingual page titles: [English, Vietnamese]. Both always shown. */
 export const pageTitles: Record<PageSlug, [string, string]> = {
   details: ['Details', 'Chi Tiết'],
-  story: ['Our Story', 'Chuyện Tình Yêu'],
+  story: ['Our Blooming Story', 'Hành Trình Nở Rộ'],
   gifts: ['Gifts', 'Mừng Cưới'],
   faq: ['FAQ', 'Hỏi Đáp'],
   rsvp: ['Kindly Reply', 'Hồi Âm'],

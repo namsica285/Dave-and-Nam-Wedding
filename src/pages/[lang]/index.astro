@@ -81,12 +81,12 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
   <!-- sunset: dune into plum behind the Catalinas -->
   <SunsetBand />
 
-  <!-- 3. Dusk: like a real lotus at evening, the flower gently closes -->
+  <!-- 3. Dusk: as their story is told, the lotus slowly blooms open -->
   <section class="s3" data-tone="dark" aria-labelledby="story-h" style={`background:linear-gradient(to bottom, ${g3})`}>
     <Stars count={70} sparkles={3} seed={5} meteors={false} class="dusk-stars" />
     <div class="wrap dusk">
-      <LogoLotus gid="foil-dusk" open={1} sw={24} class="dusk-lotus" data-open-from="1" data-open-to="0.1" />
-      <BiHeading id="story-h" level="h2" en="Our Story" vi="Chuyện Tình Yêu" {lang} dark />
+      <LogoLotus gid="foil-dusk" open={0.1} sw={24} class="dusk-lotus" data-open-from="0.1" data-open-to="1" />
+      <BiHeading id="story-h" level="h2" en="Our Blooming Story" vi="Hành Trình Nở Rộ" {lang} dark />
       <a class="btn on-dark-btn" href={`/${lang}/story/`}>{t.readStory}</a>
     </div>
   </section>
