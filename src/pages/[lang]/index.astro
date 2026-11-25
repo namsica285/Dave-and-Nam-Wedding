@@ -159,7 +159,7 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
   /* 4 night */
   .s4{background:var(--night);color:var(--ivory);padding-block:clamp(4rem,10vw,8rem);overflow:hidden}
   .night{position:relative;display:grid;justify-items:center;text-align:center;gap:1.25rem}
-    :global(.const){width:min(92%,34rem);margin-bottom:1rem}
+    .night :global(.const){width:min(92%,34rem);margin:0 auto 1rem}
   :global(.const .dl){stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1));filter:drop-shadow(0 0 6px rgba(255,230,205,.55))}
   .cstar{transform-box:fill-box;transform-origin:center;opacity:calc(var(--draw,1) * 1);animation:cpulse 4s var(--ease-in-out) infinite;animation-delay:calc(var(--i) * -.8s)}
   @keyframes cpulse{0%,100%{transform:scale(.75) rotate(0)}50%{transform:scale(1.1) rotate(30deg)}}

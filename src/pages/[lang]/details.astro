@@ -4,6 +4,7 @@ import BiHeading from '../../components/BiHeading.astro';
 import LogoLotus from '../../components/LogoLotus.astro';
 import Stage from '../../components/Stage.astro';
 import SunsetBand from '../../components/SunsetBand.astro';
+import DuneLine from '../../components/DuneLine.astro';
 import { ui, locales, type Locale } from '../../i18n/ui';
 import { event } from '../../data/event';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
@@ -92,7 +93,7 @@ const copy = {
   <!-- Night: the reply, under the full desert sky -->
   <Stage sky="night" seed={13}>
   <section class="wrap reply">
-    <hr class="foil-line" />
+    <DuneLine gid="foil-reply-dune" sw={10} class="reply-dune" data-draw />
     <p>{event.rsvpBy[lang]}</p>
     <a class="btn" href={`/${lang}/rsvp/`}>{lang === 'en' ? 'Kindly Reply' : 'Hồi Âm'}</a>
   </section>
@@ -131,7 +132,8 @@ const copy = {
   .soft{color:var(--muted)}
 
   .reply{display:grid;justify-items:center;text-align:center;gap:1.25rem;padding-block:clamp(4rem,10vw,7rem)}
-  .reply .foil-line{width:min(16rem,60%)}
+  .reply :global(.reply-dune){width:min(80%,24rem);margin:0 auto .5rem}
+  .reply :global(.reply-dune .dl){stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1));filter:drop-shadow(0 0 6px rgba(255,230,205,.5))}
   .reply p{margin:0;font-family:var(--font-display);font-size:var(--step-1);text-wrap:balance}
   @media (prefers-reduced-motion:reduce){li::after{animation:none}}
 </style>
