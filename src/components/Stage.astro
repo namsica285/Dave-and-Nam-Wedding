@@ -23,5 +23,7 @@ const n = stars ?? (sky === 'night' ? 200 : sky === 'dusk' ? 60 : 0);
 <style>
   .stage{position:relative;overflow:hidden}
   .stage-in{position:relative}
-  :global(.stars-dusk){-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000);mask-image:linear-gradient(to bottom,transparent 15%,#000);opacity:.7}
+  /* stars and the Milky Way glow fade in and out softly, so no chapter edge ever shows as a line */
+  :global(.stars-dusk){-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 70%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 70%,#000 85%,transparent);opacity:.7}
+  :global(.stars-night){-webkit-mask-image:linear-gradient(to bottom,transparent,#000 35%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 35%,#000 80%,transparent)}
 </style>
