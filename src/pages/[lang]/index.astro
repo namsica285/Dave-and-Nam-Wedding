@@ -143,8 +143,7 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
   /* 2 golden hour */
   .s2{color:var(--green);padding-block:clamp(4rem,10vw,8rem)}
   .events{list-style:none;margin:3rem 0 0;padding:0;display:grid;gap:clamp(2.5rem,7vw,4.5rem);position:relative;max-width:38rem}
-  .events::before{content:"";position:absolute;left:calc(5.5rem * .056 - 1px);top:3rem;bottom:0;width:2px;background:var(--foil-v) 0 0/100% 480px repeat-y;animation:glint-v 9s linear infinite}
-  @keyframes glint-v{to{background-position:0 480px}}
+  .events::before{content:"";position:absolute;left:calc(5.5rem * .056 - 1px);top:3rem;bottom:0;width:2px;background:var(--rail-bg);animation:var(--rail-run);--gdur:14s}
   .ev{display:grid;grid-template-columns:5.5rem 1fr;gap:1.25rem;align-items:center}
   :global(.bud){width:5.5rem;height:6rem}
 

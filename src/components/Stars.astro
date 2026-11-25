@@ -128,6 +128,14 @@ const { count = 220, sparkles = 14, seed = 11, meteors = true, class: cls } = As
       mg.addColorStop(0, `rgba(255,240,224,${0.13 * breathe})`); mg.addColorStop(0.45, `rgba(244,218,193,${0.055 * breathe})`); mg.addColorStop(1, 'rgba(244,218,193,0)');
       ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.2832); ctx.fill();
       ctx.restore();
+      // soften the band into the canvas edges, so it never ends in a hard line where the section begins or ends
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-in';
+      const ef = ctx.createLinearGradient(0, 0, 0, h);
+      const m = Math.min(0.3, 220 / h);
+      ef.addColorStop(0, 'rgba(0,0,0,0)'); ef.addColorStop(m, 'rgba(0,0,0,1)'); ef.addColorStop(1 - m, 'rgba(0,0,0,1)'); ef.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = ef; ctx.globalAlpha = 1; ctx.fillRect(0, 0, w, h);
+      ctx.restore();
 
       for (let i = 0; i < n; i++) {
         const st = stars[i];

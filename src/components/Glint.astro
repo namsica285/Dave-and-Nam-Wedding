@@ -1,0 +1,11 @@
+---
+// One soft glint that travels along a line from its start to its end, rests, then travels again.
+// Three nested dashes (wide and faint to narrow and bright) move along the path together.
+interface Props { d: string; sw: number; dur?: number; delay?: number }
+const { d, sw, dur = 13, delay = 0 } = Astro.props;
+---
+<g class="glint" style={`--gdur:${dur}s;--gdelay:${delay}s`} aria-hidden="true">
+  <path class="g1" pathLength="1" d={d} stroke-width={sw * 1.5} />
+  <path class="g2" pathLength="1" d={d} stroke-width={sw} />
+  <path class="g3" pathLength="1" d={d} stroke-width={sw * 0.55} />
+</g>
