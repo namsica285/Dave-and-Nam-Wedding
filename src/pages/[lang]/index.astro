@@ -7,16 +7,12 @@ import Stars from '../../components/Stars.astro';
 import { art, tips } from '../../data/logo-art';
 import { smoothStops } from '../../lib/gradient';
 import { ui, locales, type Locale } from '../../i18n/ui';
+import { event } from '../../data/event';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
 const lang = Astro.params.lang as Locale;
 const t = ui[lang];
 
-const events = [
-  { en: 'Welcome', vi: 'Đón Khách', to: 0.25 },
-  { en: 'Tea ceremony', vi: 'Lễ Dâng Trà', to: 0.55 },
-  { en: 'Ceremony', vi: 'Lễ Thành Hôn', to: 1 },
-  { en: 'Sunset', vi: 'Hoàng Hôn', to: 1.12, note: t.sunsetNote },
-];
+const events = event.day;
 
 // One continuous sky, mixed in OKLab and eased so there are no seams or bands.
 const g2 = smoothStops([['#EEECDD', 0], ['#EEECDD', 0.25], ['#E6D3BD', 0.62], ['#D1A585', 1]]);
@@ -64,14 +60,16 @@ const [bx, by] = art.base;
       <ol class="events">
         {events.map((e, i) => (
           <li class="ev">
-            <LogoLotus gid={`foil-ev-${i}`} open={e.to} sw={30} light class="bud" data-open-from="0" data-open-to={e.to} />
+            <LogoLotus gid={`foil-ev-${i}`} open={e.open} sw={30} light class="bud" data-open-from="0" data-open-to={e.open} />
             <div>
               <BiHeading level="h3" en={e.en} vi={e.vi} {lang} />
-              <p class="meta">{e.note ?? t.tba}</p>
+              <p class="meta">{e.note[lang]}</p>
             </div>
           </li>
         ))}
       </ol>
+      <p class="where">{event.venue} · {event.place}<br /><span>{t.timesTba}</span></p>
+      <a class="btn" href={`/${lang}/details/`}>{t.allDetails}</a>
     </div>
   </section>
 
@@ -156,6 +154,9 @@ const [bx, by] = art.base;
   @keyframes glint-v{to{background-position:0 480px}}
   .ev{display:grid;grid-template-columns:5.5rem 1fr;gap:1.25rem;align-items:center}
   :global(.bud){width:5.5rem;height:6rem}
+
+  .where{margin:3rem 0 1.5rem;font:500 var(--step-0)/1.6 var(--font-body);color:var(--green)}
+  .where span{color:var(--copper-ink)}
 
   /* sunset band */
   .blend{position:relative;height:max(clamp(26rem,85vh,52rem),calc(100vw * .2625 + 14rem))}

@@ -18,6 +18,10 @@ export const ui = {
     sunsetNote: 'Sunset, about 6:11 PM',
     readStory: 'Read our story',
     replyBy: 'By January 15, 2028',
+    tentative: 'All details are tentative and may change. We will keep this page up to date.',
+    timesTba: 'Times to be announced',
+    allDetails: 'See all details',
+    openMap: 'Open in Maps',
   },
   vi: {
     nav: { home: 'Trang Chủ', details: 'Chi Tiết', story: 'Chuyện Tình Yêu', gifts: 'Mừng Cưới', faq: 'Hỏi Đáp', rsvp: 'Hồi Âm' },
@@ -35,6 +39,10 @@ export const ui = {
     sunsetNote: 'Hoàng hôn, khoảng 6:11 chiều',
     readStory: 'Đọc chuyện của chúng tôi',
     replyBy: 'Trước ngày 15 tháng 1, 2028',
+    tentative: 'Mọi chi tiết đều là dự kiến và có thể thay đổi. Chúng tôi sẽ luôn cập nhật trang này.',
+    timesTba: 'Giờ sẽ được thông báo',
+    allDetails: 'Xem tất cả chi tiết',
+    openMap: 'Mở bản đồ',
   },
 } as const;
 
