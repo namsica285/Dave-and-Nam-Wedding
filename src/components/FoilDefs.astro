@@ -1,0 +1,14 @@
+---
+// Copper foil gradient. sky.ts slides it with scroll and a slow drift, so a glint travels along every line.
+interface Props { id: string; w?: number; light?: boolean }
+const { id, w = 400, light = false } = Astro.props;
+// Deep shadow, warm body, a bright narrow glint, then back down: reads as foil, not flat copper.
+const stops: [number, string][] = light
+  ? [[0, '#6A4127'], [0.22, '#94603F'], [0.4, '#C08A62'], [0.48, '#F1CFA8'], [0.5, '#FFF0DC'], [0.53, '#E9C29C'], [0.62, '#A8714B'], [0.82, '#7E5134'], [1, '#6A4127']]
+  : [[0, '#86573B'], [0.22, '#B68360'], [0.4, '#E2B793'], [0.48, '#FBE6CF'], [0.5, '#FFFFFF'], [0.53, '#F7DEC4'], [0.62, '#C99872'], [0.82, '#9D6B48'], [1, '#86573B']];
+---
+<defs>
+  <linearGradient id={id} data-foil gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={w * 0.35} spreadMethod="repeat" data-w={w}>
+    {stops.map(([o, c]) => <stop offset={o} stop-color={c} />)}
+  </linearGradient>
+</defs>

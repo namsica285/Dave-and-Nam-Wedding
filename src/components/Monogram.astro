@@ -1,0 +1,17 @@
+---
+// The DN monogram drawn live (not a flat image): letters take the header's text color,
+// so it works on ivory and on the night sky with no box behind it.
+import { art } from '../data/logo-art';
+import FoilDefs from './FoilDefs.astro';
+interface Props { class?: string }
+---
+<svg class:list={['mono', Astro.props.class]} viewBox="300 700 2400 2000" aria-hidden="true" focusable="false">
+  <FoilDefs id="foil-mono" w={1400} light />
+  <image href="/brand/wash-sm.webp" x="300" y="700" width="2400" height="2000" />
+  <g transform="scale(4)" fill="currentColor" fill-rule="evenodd" set:html={art.letters1} />
+  <g fill="none" stroke="url(#foil-mono)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d={art.ridge} /><path d={art.p1} /><path d={art.p2} /><path d={art.p3} /><path d={art.p4} />
+  </g>
+  <g transform="scale(4)" fill="currentColor" fill-rule="evenodd" set:html={art.letters2} />
+</svg>
+<style>.mono{display:block;overflow:visible}</style>

@@ -1,6 +1,7 @@
 @import "./tokens.css";
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:5rem}
+::selection{background:#E7C9AE;color:var(--green)}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:var(--step-0);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100dvh;display:flex;flex-direction:column}
 main{flex:1}
 h1,h2,h3{font-family:var(--font-display);font-weight:500;line-height:1.12;letter-spacing:-.01em;margin:0;text-wrap:balance}
@@ -13,15 +14,17 @@ img{max-width:100%;height:auto;display:block}
 .wrap{width:min(100% - var(--gutter)*2,var(--maxw));margin-inline:auto}
 
 /* foil: a copper line whose highlight is a custom property the scroll can drive */
-.foil-line{height:2px;background:var(--foil);background-size:200% 100%;background-position:calc(var(--foil-shift,0)*100%) 0;border:0}
+.foil-line{height:2px;background:var(--foil) 0 0/480px 100% repeat-x;border:0;animation:foil-glint 9s linear infinite}
+/* the tile starts and ends on the same color and moves exactly one tile: a seamless loop */
+@keyframes foil-glint{to{background-position:480px 0}}
 
 /* bilingual heading: both languages always visible */
 .bi{display:grid;gap:.15em}
-.bi .vi{font-size:.62em;color:var(--copper-deep);font-weight:400}
+.bi .vi{font-size:max(1.0625rem,.72em);color:var(--copper-ink);font-weight:500;letter-spacing:0}
 .bi.on-dark .vi{color:var(--copper-light)}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.7rem 1.6rem;border-radius:999px;border:1px solid var(--green);background:transparent;color:var(--green);font:500 var(--step--1)/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.85rem 1.75rem;border-radius:999px;border:1.5px solid var(--green);background:transparent;color:var(--green);font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out)}
 .btn:active{transform:scale(.97)}
 @media (hover:hover) and (pointer:fine){.btn:hover{background:var(--green);color:var(--ivory)}}
 
@@ -32,6 +35,10 @@ img{max-width:100%;height:auto;display:block}
 ::view-transition-new(root){animation:vt-in 260ms var(--ease-out) 60ms both}
 
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none}
 }
+
+/* night tone: home page ends in the desert night */
+body.tone-night{--bg:var(--night);--fg:var(--ivory);background:linear-gradient(var(--ivory) 0 30%,var(--night) 30%)}
+body.tone-night footer .meta{color:var(--copper-light)}
