@@ -25,7 +25,7 @@ const here = page ? `/${other}/${page}/` : `/${other}/`;
 </header>
 
 <style>
-  .site-header{position:sticky;top:0;z-index:50;color:var(--hdr-fg,var(--green));background:color-mix(in srgb,var(--hdr-bg,var(--ivory)) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid color-mix(in srgb,var(--copper) 35%,transparent);transition:background-color var(--dur-slow) var(--ease-out),color var(--dur-slow) var(--ease-out)}
+  .site-header{position:sticky;top:0;z-index:50;color:var(--hdr-fg,var(--green));background:var(--hdr-bg,var(--ivory));border-bottom:1px solid color-mix(in srgb,var(--copper) 35%,transparent);transition:background-color var(--dur-slow) var(--ease-out),color var(--dur-slow) var(--ease-out)}
   .on-dark{display:none}
   :global(html[data-tone="dark"]) .site-header{--hdr-bg:var(--night);--hdr-fg:var(--ivory)}
   :global(html[data-tone="dark"]) .on-light{display:none}

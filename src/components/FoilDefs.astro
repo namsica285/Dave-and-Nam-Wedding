@@ -1,17 +1,14 @@
 ---
-// Copper foil gradient. JS (sky.ts) slides it with scroll so the highlight travels along every line.
+// Copper foil gradient. sky.ts slides it with scroll and a slow drift, so a glint travels along every line.
 interface Props { id: string; w?: number; light?: boolean }
 const { id, w = 400, light = false } = Astro.props;
-// On ivory the pale highlight vanishes, so light backgrounds get a deeper foil.
-const c = light ? ['#6E4529','#9D6B48','#C4916F','#B07C58','#9D6B48','#6E4529'] : ['#86573B','#B68360','#F4DAC1','#EBD1BC','#B68360','#86573B'];
+// Deep shadow, warm body, a bright narrow glint, then back down: reads as foil, not flat copper.
+const stops: [number, string][] = light
+  ? [[0, '#6A4127'], [0.22, '#94603F'], [0.4, '#C08A62'], [0.48, '#F1CFA8'], [0.5, '#FFF0DC'], [0.53, '#E9C29C'], [0.62, '#A8714B'], [0.82, '#7E5134'], [1, '#6A4127']]
+  : [[0, '#86573B'], [0.22, '#B68360'], [0.4, '#E2B793'], [0.48, '#FBE6CF'], [0.5, '#FFFFFF'], [0.53, '#F7DEC4'], [0.62, '#C99872'], [0.82, '#9D6B48'], [1, '#86573B']];
 ---
 <defs>
-  <linearGradient id={id} data-foil gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2="0" spreadMethod="repeat" data-w={w}>
-    <stop offset="0" stop-color={c[0]} />
-    <stop offset=".3" stop-color={c[1]} />
-    <stop offset=".5" stop-color={c[2]} />
-    <stop offset=".62" stop-color={c[3]} />
-    <stop offset=".8" stop-color={c[4]} />
-    <stop offset="1" stop-color={c[5]} />
+  <linearGradient id={id} data-foil gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={w * 0.35} spreadMethod="repeat" data-w={w}>
+    {stops.map(([o, c]) => <stop offset={o} stop-color={c} />)}
   </linearGradient>
 </defs>

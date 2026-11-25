@@ -13,7 +13,8 @@ img{max-width:100%;height:auto;display:block}
 .wrap{width:min(100% - var(--gutter)*2,var(--maxw));margin-inline:auto}
 
 /* foil: a copper line whose highlight is a custom property the scroll can drive */
-.foil-line{height:2px;background:var(--foil);background-size:200% 100%;background-position:calc(var(--foil-shift,0)*100%) 0;border:0}
+.foil-line{height:2px;background:var(--foil);background-size:250% 100%;border:0;animation:foil-glint 7s linear infinite}
+@keyframes foil-glint{from{background-position:100% 0}to{background-position:-150% 0}}
 
 /* bilingual heading: both languages always visible */
 .bi{display:grid;gap:.15em}
@@ -32,7 +33,7 @@ img{max-width:100%;height:auto;display:block}
 ::view-transition-new(root){animation:vt-in 260ms var(--ease-out) 60ms both}
 
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none}
 }
 

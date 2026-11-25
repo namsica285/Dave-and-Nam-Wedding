@@ -37,13 +37,27 @@ function frame() {
     const r = el.getBoundingClientRect();
     el.style.setProperty('--draw', clamp((vh * 0.9 - r.top) / (vh * 0.75)).toFixed(3));
   }
-  // foil highlight travels along every line as you scroll
-  const shift = (window.scrollY / 900) % 1;
+  shine();
+}
+
+// foil glint: follows scroll, and drifts slowly on its own so the metal always feels alive
+const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+function shine(now = performance.now()) {
+  const drift = still.matches ? 0 : now / 14000;
+  const shift = (window.scrollY / 1100 + drift) % 1;
   for (const g of foils) {
     const w = parseFloat(g.dataset.w || '400');
     g.setAttribute('gradientTransform', `translate(${(shift * w).toFixed(1)} 0)`);
   }
 }
+let loop = 0;
+function tick(now: number) {
+  loop = 0;
+  if (!foils.length || still.matches || document.hidden) return;
+  shine(now);
+  loop = requestAnimationFrame(tick);
+}
+function startLoop() { if (!loop) loop = requestAnimationFrame(tick); }
 
 function queue() { if (!raf) raf = requestAnimationFrame(frame); }
 
@@ -51,11 +65,13 @@ function init() {
   collect();
   if (!sections.length) document.documentElement.dataset.tone = 'light';
   frame();
+  startLoop();
 }
 
 if (!(window as any).__skyBound) {
   (window as any).__skyBound = true;
   window.addEventListener('scroll', queue, { passive: true });
   window.addEventListener('resize', queue);
+  document.addEventListener('visibilitychange', startLoop);
 }
 document.addEventListener('astro:page-load', init);

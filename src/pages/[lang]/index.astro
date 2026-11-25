@@ -1,41 +1,55 @@
 ---
 import Base from '../../layouts/Base.astro';
 import BiHeading from '../../components/BiHeading.astro';
-import Lotus from '../../components/Lotus.astro';
+import LogoLotus from '../../components/LogoLotus.astro';
 import FoilDefs from '../../components/FoilDefs.astro';
+import Stars from '../../components/Stars.astro';
+import { art, tips } from '../../data/logo-art';
+import { smoothStops } from '../../lib/gradient';
 import { ui, locales, type Locale } from '../../i18n/ui';
 export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
 const lang = Astro.params.lang as Locale;
 const t = ui[lang];
 
 const events = [
-  { en: 'Welcome', vi: 'Đón Khách', to: 0.2 },
-  { en: 'Tea ceremony', vi: 'Lễ Dâng Trà', to: 0.5 },
+  { en: 'Welcome', vi: 'Đón Khách', to: 0.25 },
+  { en: 'Tea ceremony', vi: 'Lễ Dâng Trà', to: 0.55 },
   { en: 'Ceremony', vi: 'Lễ Thành Hôn', to: 1 },
-  { en: 'Sunset', vi: 'Hoàng Hôn', to: 1.15, note: t.sunsetNote },
+  { en: 'Sunset', vi: 'Hoàng Hôn', to: 1.12, note: t.sunsetNote },
 ];
 
-// deterministic star field so every build looks the same
-let seed = 7;
-const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-const stars = Array.from({ length: 140 }, () => ({
-  x: +(rnd() * 100).toFixed(2), y: +(rnd() * 100).toFixed(2),
-  r: +(0.6 + rnd() * 1.4).toFixed(2), tw: rnd() < 0.14, d: +(rnd() * 6).toFixed(1),
-}));
-const pts = [-55, -27, 0, 27, 55].map((s) => {
-  const a = ((s - 90) * Math.PI) / 180; const L = (s === 0 ? 150 : 124);
-  return [+(200 + Math.cos(a) * L).toFixed(1), +(215 + Math.sin(a) * L).toFixed(1)];
-});
+// One continuous sky, mixed in OKLab and eased so there are no seams or bands.
+const g2 = smoothStops([['#EEECDD', 0], ['#EEECDD', 0.25], ['#E6D3BD', 0.62], ['#D1A585', 1]]);
+const gBlend = smoothStops([['#D1A585', 0], ['#C99573', 0.3], ['#C08464', 0.5], ['#9A6B63', 0.68], ['#6E4F5C', 0.84], ['#4E3D4E', 1]], 14);
+const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
+const [bx, by] = art.base;
 ---
 <Base lang={lang} title="Dave & Nam" night>
-  <!-- 1. First light -->
+  <!-- 1. First light: the logo draws itself, then its watercolor blooms underneath -->
   <section class="s1" data-tone="light" aria-label={lang === 'en' ? 'First light' : 'Bình minh'}>
     <div class="wrap hero">
-      <svg class="ridge" viewBox="0 0 1200 520" role="img" aria-label={lang === 'en' ? 'A copper line follows the Catalina ridge and rises into a lotus' : 'Một đường đồng chạy theo dãy núi Catalina rồi nở thành hoa sen'}>
-        <FoilDefs id="foil-ridge" w={600} light />
-        <path class="draw" pathLength="1" fill="none" stroke="url(#foil-ridge)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-          d="M0 430 L70 410 L130 424 L205 372 L262 394 L330 340 L392 366 L470 318 L520 338 L596 296 L650 322 L724 280 L772 300 L830 262 L868 238 C884 224 892 210 894 190 L896 166" />
-        <Lotus gid="foil-hero-lotus" x={816} y={30} size={160} draw light delay={1.9} sw={1.6} />
+      <svg class="logo-art" viewBox="300 700 2400 2000" role="img" aria-label={lang === 'en' ? 'The DN monogram: a copper line follows the desert dunes and rises into a lotus' : 'Chữ lồng DN: một nét đồng theo đồi cát rồi vươn lên thành hoa sen'}>
+        <FoilDefs id="foil-hero" w={1400} light />
+        <defs>
+          <radialGradient id="bleed">
+            <stop offset="0" stop-color="#fff" /><stop offset=".55" stop-color="#fff" /><stop offset=".8" stop-color="#fff" stop-opacity=".5" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </radialGradient>
+          <mask id="wash-mask" maskUnits="userSpaceOnUse" x="300" y="700" width="2400" height="2000">
+            <circle class="bleed b1" cx="760" cy="2200" r="1050" fill="url(#bleed)" />
+            <circle class="bleed b2" cx="2060" cy="1180" r="820" fill="url(#bleed)" />
+          </mask>
+        </defs>
+        <image class="wash" href="/brand/wash.webp" x="300" y="700" width="2400" height="2000" mask="url(#wash-mask)" />
+        <g class="letters">
+          <image href="/brand/ink.webp" x="300" y="700" width="2400" height="2000" />
+          <g transform="scale(4)" fill="#24342A" fill-rule="evenodd" set:html={art.letters1} />
+        </g>
+        <g fill="none" stroke="url(#foil-hero)" stroke-width="13.4" stroke-linecap="round" stroke-linejoin="round">
+          <path class="ln ridge" pathLength="1" d={art.ridge} />
+          <path class="ln dune" pathLength="1" d={art.dune} />
+          {(['p1', 'p2', 'p3', 'p4'] as const).map((k, i) => <path class="ln petal" pathLength="1" style={`animation-delay:${2.9 + i * 0.28}s`} d={art[k]} />)}
+        </g>
+        <g class="letters" transform="scale(4)" fill="#24342A" fill-rule="evenodd" set:html={art.letters2} />
       </svg>
       <h1 class="names">Dave &amp; Nam</h1>
       <p class="when">{t.date}<br />{t.place}</p>
@@ -43,14 +57,14 @@ const pts = [-55, -27, 0, 27, 55].map((s) => {
     </div>
   </section>
 
-  <!-- 2. Golden hour -->
-  <section class="s2" data-tone="light" aria-labelledby="day-h">
+  <!-- 2. Golden hour: each event is a lotus bud that opens as you reach it -->
+  <section class="s2" data-tone="light" aria-labelledby="day-h" style={`background:linear-gradient(to bottom, ${g2})`}>
     <div class="wrap">
       <BiHeading id="day-h" level="h2" en="The Day" vi="Ngày Trọng Đại" {lang} />
       <ol class="events">
         {events.map((e, i) => (
-          <li class="ev" data-open-from="0" data-open-to={e.to}>
-            <Lotus gid={`foil-ev-${i}`} open={e.to} sw={2.4} light class="bud" />
+          <li class="ev">
+            <LogoLotus gid={`foil-ev-${i}`} open={e.to} sw={30} light class="bud" data-open-from="0" data-open-to={e.to} />
             <div>
               <BiHeading level="h3" en={e.en} vi={e.vi} {lang} />
               <p class="meta">{e.note ?? t.tba}</p>
@@ -61,33 +75,44 @@ const pts = [-55, -27, 0, 27, 55].map((s) => {
     </div>
   </section>
 
-  <!-- blend: dune into plum, no text so contrast never fails -->
-  <div class="blend" data-tone="light" aria-hidden="true"></div>
+  <!-- sunset: dune into plum behind the Catalinas, no text so contrast never fails -->
+  <div class="blend" data-tone="light" aria-hidden="true" style={`background:radial-gradient(ellipse 70% 38% at 50% 74%, rgba(255,226,196,.55), rgba(255,226,196,0) 70%), linear-gradient(to bottom, ${gBlend})`}>
+    <svg class="range" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
+      <FoilDefs id="foil-range" w={800} />
+      <path fill="#6E4F5C" fill-opacity=".55" d="M0 250 C140 200 230 150 330 160 C420 170 470 90 590 80 C700 70 760 150 860 140 C960 130 1010 40 1120 50 C1220 60 1270 140 1370 130 C1460 122 1540 90 1600 100 L1600 420 L0 420Z" />
+      <path fill="#4E3D4E" d="M0 320 C120 280 210 240 310 248 C400 256 450 198 550 190 C640 183 700 238 800 230 C900 222 950 150 1050 142 C1140 135 1200 205 1290 210 C1380 215 1440 175 1520 182 C1560 186 1585 196 1600 200 L1600 420 L0 420Z" />
+      <path class="rim" fill="none" stroke="url(#foil-range)" stroke-width="2" vector-effect="non-scaling-stroke" d="M0 320 C120 280 210 240 310 248 C400 256 450 198 550 190 C640 183 700 238 800 230 C900 222 950 150 1050 142 C1140 135 1200 205 1290 210 C1380 215 1440 175 1520 182 C1560 186 1585 196 1600 200" />
+    </svg>
+  </div>
 
-  <!-- 3. Dusk -->
-  <section class="s3" data-tone="dark" aria-labelledby="story-h">
+  <!-- 3. Dusk: like a real lotus at evening, the flower gently closes -->
+  <section class="s3" data-tone="dark" aria-labelledby="story-h" style={`background:linear-gradient(to bottom, ${g3})`}>
+    <Stars count={70} sparkles={3} seed={5} meteors={false} class="dusk-stars" />
     <div class="wrap dusk">
-      <Lotus gid="foil-dusk" open={1} sw={2} class="dusk-lotus" />
-      <div data-open-from="1" data-open-to="0.3" class="dusk-wrap">
-        <BiHeading id="story-h" level="h2" en="Our Story" vi="Chuyện Tình Yêu" {lang} dark />
-      </div>
+      <LogoLotus gid="foil-dusk" open={1} sw={24} class="dusk-lotus" data-open-from="1" data-open-to="0.1" />
+      <BiHeading id="story-h" level="h2" en="Our Story" vi="Chuyện Tình Yêu" {lang} dark />
       <a class="btn on-dark-btn" href={`/${lang}/story/`}>{t.readStory}</a>
     </div>
   </section>
 
-  <!-- 4. Desert night -->
+  <!-- 4. Desert night: foil lines join stars into the logo's lotus -->
   <section class="s4" data-tone="dark" aria-labelledby="rsvp-h">
-    <svg class="field" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      {stars.map((s) => (
-        <circle cx={s.x} cy={s.y} r={s.r * 0.12} fill="#EEECDD" class:list={{ tw: s.tw }} style={s.tw ? `animation-delay:${s.d}s` : undefined} />
-      ))}
-    </svg>
-    <div class="wrap night" data-draw>
-      <svg class="const" viewBox="0 0 400 260" aria-hidden="true">
-        <FoilDefs id="foil-const" w={400} />
-        {pts.map(([x, y]) => <line class="cl" pathLength="1" x1="200" y1="215" x2={x} y2={y} />)}
-        {pts.slice(1).map(([x, y], i) => <line class="cl" pathLength="1" x1={pts[i][0]} y1={pts[i][1]} x2={x} y2={y} />)}
-        {[...pts, [200, 215]].map(([x, y]) => <circle class="dot" cx={x} cy={y} r="3.5" />)}
+    <Stars count={260} sparkles={16} seed={11} />
+    <div class="wrap night">
+      <svg class="const" viewBox="1560 740 1080 860" aria-hidden="true" data-draw>
+        <FoilDefs id="foil-const" w={700} />
+        <g fill="none" stroke="url(#foil-const)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+          {(['p1', 'p2', 'p3', 'p4'] as const).map((k) => <path class="cl" pathLength="1" d={art[k]} />)}
+          <path class="cl" pathLength="1" d={art.stem} />
+        </g>
+        {[...tips, [bx, by]].map(([x, y], i) => (
+          <g transform={`translate(${x} ${y})`}>
+            <g class="cstar" style={`--i:${i}`}>
+              <circle r="38" fill="#F4DAC1" opacity=".18" />
+              <path d="M0 -34 C2 -7 7 -2 34 0 C7 2 2 7 0 34 C-2 7 -7 2 -34 0 C-7 -2 -2 -7 0 -34Z" fill="#FFF6EA" />
+            </g>
+          </g>
+        ))}
       </svg>
       <BiHeading id="rsvp-h" level="h2" en="Kindly Reply" vi="Hồi Âm" {lang} dark />
       <p class="by">{t.replyBy}</p>
@@ -97,49 +122,61 @@ const pts = [-55, -27, 0, 27, 55].map((s) => {
 </Base>
 
 <style>
-  /* shared */
   section{position:relative}
-  h1,h2{font-size:var(--step-3)}
+  h2{font-size:var(--step-3)}
   h3{font-size:var(--step-1)}
   .meta{font:500 var(--step--1)/1.5 var(--font-body);letter-spacing:.06em;color:var(--copper-deep);margin:.35rem 0 0}
 
   /* 1 first light */
-  .s1{background:var(--ivory);color:var(--green);min-height:calc(100svh - 4.25rem);display:grid;align-items:end}
-  .hero{display:grid;justify-items:center;text-align:center;gap:.5rem;padding-top:1.5rem;padding-bottom:clamp(2rem,5vw,4rem)}
-  .ridge{width:min(100%,64rem);height:auto;overflow:visible}
-  .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:ridge 2.6s cubic-bezier(.65,0,.35,1) .2s both}
-  @keyframes ridge{to{stroke-dashoffset:0}}
-  .names{font-size:var(--step-4);animation:rise .9s var(--ease-out) 1.7s both}
-  .when{font:500 var(--step--1)/1.9 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-deep);margin:0 auto;animation:rise .9s var(--ease-out) 1.95s both}
-  .cue{font:500 .7rem/1 var(--font-body);letter-spacing:.3em;text-transform:uppercase;color:var(--copper-deep);margin:1.5rem auto 0;animation:rise .9s var(--ease-out) 2.4s both}
-  @keyframes rise{from{opacity:0;transform:translateY(8px);filter:blur(2px)}}
+  .s1{background:var(--ivory);color:var(--green);min-height:calc(100svh - 4.25rem);display:grid;align-items:center}
+  .hero{display:grid;justify-items:center;text-align:center;gap:.4rem;padding-block:clamp(1rem,3vw,2.5rem)}
+  .logo-art{width:min(100%,40rem);height:auto;overflow:visible}
+  .letters{opacity:0;animation:ink 2.4s var(--ease-out) 3s both}
+  @keyframes ink{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:blur(0)}}
+  .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:pen 3s cubic-bezier(.42,.06,.28,1) both}
+  .ridge{animation-delay:.3s;animation-duration:3.1s}
+  .dune{animation-delay:.6s;animation-duration:2.4s}
+  .petal{animation-duration:1.7s}
+  @keyframes pen{to{stroke-dashoffset:0}}
+  .wash{animation:wet 3.4s var(--ease-out) 3.3s both}
+  @keyframes wet{from{opacity:0;filter:blur(14px)}to{opacity:1;filter:blur(0)}}
+  .bleed{transform-box:fill-box;transform-origin:center;animation:bleed 3.4s cubic-bezier(.2,.7,.2,1) both}
+  .b1{animation-delay:3.35s}
+  .b2{animation-delay:3.9s}
+  @keyframes bleed{from{transform:scale(.12);opacity:0}to{transform:scale(1);opacity:1}}
+  .names{font-size:var(--step-4);animation:rise 1.2s var(--ease-out) 1.1s both}
+  .when{font:500 var(--step--1)/1.9 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-deep);margin:0 auto;animation:rise 1.2s var(--ease-out) 1.35s both}
+  .cue{font:500 .7rem/1 var(--font-body);letter-spacing:.3em;text-transform:uppercase;color:var(--copper-deep);margin:1.25rem auto 0;animation:rise 1.2s var(--ease-out) 5.2s both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);filter:blur(3px)}}
 
   /* 2 golden hour */
-  .s2{background:linear-gradient(to bottom,var(--ivory),var(--dune-light));color:var(--green);padding-block:clamp(4rem,10vw,8rem)}
-  .events{list-style:none;margin:3rem 0 0;padding:0 0 0 0;display:grid;gap:clamp(2.5rem,7vw,5rem);position:relative;max-width:36rem}
-  .events::before{content:"";position:absolute;left:2.25rem;top:1rem;bottom:1rem;width:2px;background:var(--foil);background-size:100% 200%}
-  .ev{display:grid;grid-template-columns:4.5rem 1fr;gap:1.25rem;align-items:center}
-  :global(.bud){width:4.5rem;height:4.5rem}
+  .s2{color:var(--green);padding-block:clamp(4rem,10vw,8rem)}
+  .events{list-style:none;margin:3rem 0 0;padding:0;display:grid;gap:clamp(2.5rem,7vw,4.5rem);position:relative;max-width:38rem}
+  .events::before{content:"";position:absolute;left:calc(5.5rem * .056 - 1px);top:3rem;bottom:0;width:2px;background:var(--foil);background-size:100% 260%;animation:glint-v 7s linear infinite}
+  @keyframes glint-v{from{background-position:0 100%}to{background-position:0 -160%}}
+  .ev{display:grid;grid-template-columns:5.5rem 1fr;gap:1.25rem;align-items:center}
+  :global(.bud){width:5.5rem;height:6rem}
 
-  .blend{height:clamp(14rem,40vh,26rem);background:linear-gradient(to bottom,var(--dune-light),var(--dune) 40%,var(--plum))}
+  /* sunset band */
+  .blend{position:relative;height:clamp(24rem,85vh,52rem)}
+  .range{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46%}
+  .rim{filter:drop-shadow(0 0 3px rgba(255,236,214,.55))}
 
   /* 3 dusk */
-  .s3{background:linear-gradient(to bottom,var(--plum),var(--night));color:var(--ivory);padding-block:clamp(3rem,8vw,6rem)}
-  .dusk{display:grid;justify-items:center;text-align:center;gap:1.75rem}
-  :global(.dusk-lotus){width:7rem;height:7rem}
+  .s3{color:var(--ivory);padding-block:clamp(2rem,6vw,4rem) clamp(4rem,10vw,7rem)}
+  :global(.dusk-stars){-webkit-mask-image:linear-gradient(to bottom,transparent 10%,#000);mask-image:linear-gradient(to bottom,transparent 10%,#000);opacity:.7}
+  .dusk{position:relative;display:grid;justify-items:center;text-align:center;gap:1.5rem}
+  :global(.dusk-lotus){width:8rem;height:8.6rem}
   .on-dark-btn{border-color:var(--copper-light);color:var(--ivory)}
   @media (hover:hover) and (pointer:fine){.on-dark-btn:hover{background:var(--ivory);color:var(--green)}}
 
   /* 4 night */
-  .s4{background:var(--night);color:var(--ivory);padding-block:clamp(5rem,12vw,9rem);overflow:hidden}
-  .field{position:absolute;inset:0;width:100%;height:100%}
-  .tw{animation:twinkle 5s ease-in-out infinite}
-  @keyframes twinkle{50%{opacity:.25}}
+  .s4{background:var(--night);color:var(--ivory);padding-block:clamp(4rem,10vw,8rem);overflow:hidden}
   .night{position:relative;display:grid;justify-items:center;text-align:center;gap:1.25rem}
-  .const{width:min(100%,26rem);height:auto;margin-bottom:1rem}
-  .cl{stroke:url(#foil-const);stroke-width:1.4;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1))}
-  .dot{fill:var(--foil-4);opacity:calc(.35 + .65 * var(--draw,1))}
+  .const{width:min(80%,22rem);height:auto;overflow:visible;margin-bottom:.5rem}
+  .cl{stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1));filter:drop-shadow(0 0 6px rgba(255,230,205,.55))}
+  .cstar{transform-box:fill-box;transform-origin:center;opacity:calc(var(--draw,1) * 1);animation:cpulse 4s var(--ease-in-out) infinite;animation-delay:calc(var(--i) * -.8s)}
+  @keyframes cpulse{0%,100%{transform:scale(.75) rotate(0)}50%{transform:scale(1.1) rotate(30deg)}}
   .by{font:500 var(--step--1)/1 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-light);margin:0 auto 1rem}
-
-  @media (prefers-reduced-motion:reduce){.tw{animation:none}}
+  @media (prefers-reduced-motion:reduce){.cstar,.events::before{animation:none}}
 </style>

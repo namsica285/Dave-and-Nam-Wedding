@@ -15,7 +15,7 @@
   --dune:#C08464; --dune-light:#D1A585; --petal-peach:#D7B5A1; --petal-lavender:#6F5763;
   /* foil stops */
   --foil-1:#86573B; --foil-2:#B68360; --foil-3:#EBD1BC; --foil-4:#F4DAC1;
-  --foil:linear-gradient(100deg,var(--foil-1),var(--foil-2) 30%,var(--foil-3) 50%,var(--foil-2) 70%,var(--foil-1));
+  --foil:linear-gradient(100deg,#6A4127,#94603F 18%,#C08A62 34%,#F1CFA8 44%,#FFF3E2 50%,#E9C29C 56%,#A8714B 70%,#7E5134 86%,#6A4127);
   /* semantic */
   --bg:var(--ivory); --fg:var(--green); --muted:#4a4a42; --accent:var(--copper-deep);
   /* type */
