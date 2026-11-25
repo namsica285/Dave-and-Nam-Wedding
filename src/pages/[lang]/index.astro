@@ -31,8 +31,12 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
           <radialGradient id="bleed">
             <stop offset="0" stop-color="#fff" /><stop offset=".55" stop-color="#fff" /><stop offset=".8" stop-color="#fff" stop-opacity=".5" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
           </radialGradient>
+          <!-- the dune wash keeps its full strength until just past the N's first thin stroke, as in the logo -->
+          <radialGradient id="bleed-dune">
+            <stop offset="0" stop-color="#fff" /><stop offset=".78" stop-color="#fff" /><stop offset=".9" stop-color="#fff" stop-opacity=".55" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </radialGradient>
           <mask id="wash-mask" maskUnits="userSpaceOnUse" x="300" y="700" width="2400" height="2000">
-            <circle class="bleed b1" cx="760" cy="2200" r="1050" fill="url(#bleed)" />
+            <circle class="bleed b1" cx="760" cy="2200" r="1320" fill="url(#bleed-dune)" />
             <circle class="bleed b2" cx="2060" cy="1180" r="820" fill="url(#bleed)" />
           </mask>
         </defs>
