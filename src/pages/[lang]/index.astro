@@ -65,7 +65,7 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
       <ol class="events">
         {events.map((e, i) => (
           <li class="ev">
-            <LogoLotus gid={`foil-ev-${i}`} open={e.open} sw={30} light class="bud" data-open-from="0" data-open-to={e.open} />
+            <LogoLotus gid={`foil-ev-${i}`} open={e.open} sw={30} light rail class="bud" data-open-from="0" data-open-to={e.open} />
             <div>
               <BiHeading level="h3" en={e.en} vi={e.vi} {lang} />
               <p class="meta">{e.note[lang]}</p>
