@@ -1,0 +1,123 @@
+---
+import Base from '../../layouts/Base.astro';
+import BiHeading from '../../components/BiHeading.astro';
+import LogoLotus from '../../components/LogoLotus.astro';
+import Stage from '../../components/Stage.astro';
+import SunsetBand from '../../components/SunsetBand.astro';
+import { locales, type Locale } from '../../i18n/ui';
+import { zelle } from '../../data/gifts';
+export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
+const lang = Astro.params.lang as Locale;
+const c = {
+  lead: {
+    en: 'Your presence is our greatest gift. Truly, there is no expectation.',
+    vi: 'Sự hiện diện của quý vị là món quà quý giá nhất đối với chúng tôi. Thật lòng, chúng tôi không mong đợi gì thêm.',
+  },
+  body: {
+    en: 'In Vietnamese tradition, guests offer mừng cưới: a gift of blessing for the couple’s new life together. We are not keeping a registry. If you would like to give, a card in the gift box at the reception, or a gift by Zelle or Venmo, is warmly appreciated.',
+    vi: 'Theo truyền thống Việt Nam, khách mời gửi lời mừng cưới để chúc phúc cho đôi vợ chồng mới. Chúng tôi không lập danh sách quà. Nếu quý vị muốn gửi quà, có thể bỏ phong bì vào hộp mừng cưới tại tiệc, hoặc gửi qua Zelle hay Venmo. Chúng tôi xin chân thành cảm ơn.',
+  },
+  boxH: ['At the Reception', 'Tại Tiệc Cưới'],
+  box: { en: 'A gift box will be at the reception for cards and envelopes.', vi: 'Sẽ có hộp mừng cưới tại tiệc để quý vị gửi thiệp và phong bì.' },
+  zelleIntro: { en: 'Scan a code in your bank’s app. On your phone, tap “Open in Zelle” instead.', vi: 'Quét mã trong ứng dụng ngân hàng. Nếu đang dùng điện thoại, bấm “Mở Zelle”.' },
+  show: { en: 'Show code', vi: 'Hiện mã' },
+  hide: { en: 'Hide code', vi: 'Ẩn mã' },
+  open: { en: 'Open in Zelle', vi: 'Mở Zelle' },
+  alt: { en: (w: string) => `Zelle QR code to send a gift to ${w}`, vi: (w: string) => `Mã QR Zelle để gửi quà cho ${w}` },
+  venmo: { en: 'Venmo details are coming soon.', vi: 'Thông tin Venmo sẽ sớm được cập nhật.' },
+  thanks: { en: 'Thank you for celebrating with us.', vi: 'Cảm ơn quý vị đã chung vui cùng chúng tôi.' },
+};
+---
+<Base lang={lang} page="gifts" night title={lang === 'en' ? 'Gifts' : 'Mừng Cưới'}>
+  <!-- Day: the tradition, in plain light -->
+  <Stage sky="day">
+  <section class="top">
+    <div class="wrap intro">
+      <LogoLotus gid="foil-gift" open={1} sw={26} light class="gift-lotus" />
+      <BiHeading level="h1" en="Gifts" vi="Mừng Cưới" {lang} />
+      <p class="lead">{c.lead[lang]}</p>
+      <p class="body">{c.body[lang]}</p>
+    </div>
+  </section>
+
+  </Stage>
+
+  <!-- Golden hour: the ways to give -->
+  <Stage sky="golden">
+  <section class="wrap ways">
+    <div class="way">
+      <BiHeading level="h2" en={c.boxH[0]} vi={c.boxH[1]} {lang} />
+      <p>{c.box[lang]}</p>
+    </div>
+
+    <div class="way">
+      <BiHeading level="h2" en="Zelle" vi="Zelle" {lang} class="one" />
+      <p>{c.zelleIntro[lang]}</p>
+      <div class="codes">
+        {zelle.map((z) => (
+          <details class="code">
+            <summary>
+              <span class="who">{z.who}</span>
+              <span class="toggle"><span class="s">{c.show[lang]}</span><span class="h">{c.hide[lang]}</span></span>
+            </summary>
+            <div class="reveal">
+              <img src={z.img} width="320" height="320" alt={c.alt[lang](z.who)} loading="lazy" />
+              <a class="btn" href={z.url} target="_blank" rel="noopener">{c.open[lang]}</a>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <div class="way">
+      <BiHeading level="h2" en="Venmo" vi="Venmo" {lang} class="one" />
+      <p class="soft">{c.venmo[lang]}</p>
+    </div>
+  </section>
+
+  </Stage>
+
+  <SunsetBand compact id="foil-range-g" />
+
+  <!-- Night: a lotus blooms open under the stars as you arrive, our thank-you -->
+  <Stage sky="night" fade seed={17}>
+  <section class="wrap thanks">
+    <LogoLotus gid="foil-thanks" open={1} sw={24} class="thanks-lotus" data-open-from="0.15" data-open-to="1" />
+    <p>{c.thanks[lang]}</p>
+    <hr class="foil-line" />
+  </section>
+  </Stage>
+</Base>
+
+<style>
+  h1{font-size:var(--step-3)}
+  h2{font-size:var(--step-2)}
+  :global(.bi.one .vi){display:none}
+  .top{padding-block:clamp(3rem,8vw,5.5rem) clamp(1rem,3vw,2rem)}
+  .intro{display:grid;justify-items:center;text-align:center;gap:1.25rem}
+  :global(.gift-lotus){width:6rem;height:6.5rem}
+  .lead{font-family:var(--font-display);font-size:var(--step-1);line-height:1.35;margin:.5rem auto 0;max-width:34ch;text-wrap:balance}
+  .body{margin:0 auto;max-width:60ch;color:var(--muted)}
+
+  .ways{display:grid;gap:clamp(2.5rem,6vw,4rem);padding-block:clamp(3rem,7vw,5rem) clamp(4rem,9vw,7rem);max-width:48rem}
+  .way p{margin:1rem 0 0}
+  .soft{color:var(--muted)}
+  .codes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:1rem;margin-top:1.5rem}
+  .code{border:1.5px solid color-mix(in srgb,var(--copper) 55%,transparent);border-radius:18px;background:#FFFDF7;overflow:hidden}
+  summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:4rem;padding:.9rem 1.2rem}
+  summary::-webkit-details-marker{display:none}
+  .who{font-family:var(--font-display);font-size:var(--step-1)}
+  .toggle{font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--copper-ink);border-bottom:1.5px solid var(--copper);padding-bottom:2px}
+  .h{display:none}
+  .code[open] .s{display:none}
+  .code[open] .h{display:inline}
+  .reveal{display:grid;justify-items:center;gap:1rem;padding:0 1.2rem 1.4rem;animation:reveal .45s var(--ease-out) both}
+  @keyframes reveal{from{opacity:0;transform:translateY(-6px);filter:blur(3px)}}
+  .reveal img{width:min(100%,15rem);height:auto;border-radius:8px}
+  :focus-visible{outline-offset:4px}
+
+  .thanks{display:grid;justify-items:center;text-align:center;gap:1.5rem;padding-block:clamp(7rem,16vw,11rem) clamp(4rem,10vw,7rem)}
+  :global(.thanks-lotus){width:8rem;height:8.6rem}
+  .thanks .foil-line{width:min(16rem,60%)}
+  .thanks p{margin:0;font-family:var(--font-display);font-size:var(--step-2);text-wrap:balance}
+</style>

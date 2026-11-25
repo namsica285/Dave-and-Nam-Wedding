@@ -24,9 +24,10 @@ img{max-width:100%;height:auto;display:block}
 .bi.on-dark .vi{color:var(--copper-light)}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.85rem 1.75rem;border-radius:999px;border:1.5px solid var(--green);background:transparent;color:var(--green);font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.85rem 1.75rem;border-radius:999px;border:1.5px solid var(--btn-line,var(--green));background:transparent;color:var(--btn-fg,var(--green));font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out)}
 .btn:active{transform:scale(.97)}
-@media (hover:hover) and (pointer:fine){.btn:hover{background:var(--green);color:var(--ivory)}}
+@media (hover:hover) and (pointer:fine){.btn:hover{background:var(--btn-fg,var(--green));color:var(--btn-bg,var(--ivory))}
+  .stage-dark .btn:hover{color:var(--green)}}
 
 /* page transition: quick crossfade with a 2px blur bridge; exits faster than enters */
 @keyframes vt-out{to{opacity:0;filter:blur(2px)}}
@@ -42,3 +43,10 @@ img{max-width:100%;height:auto;display:block}
 /* night tone: home page ends in the desert night */
 body.tone-night{--bg:var(--night);--fg:var(--ivory);background:linear-gradient(var(--ivory) 0 30%,var(--night) 30%)}
 body.tone-night footer .meta{color:var(--copper-light)}
+
+/* chapters of the sky (Stage.astro): text colors follow the light */
+.stage-day,.stage-golden{color:var(--green);--fg:var(--green)}
+.stage-golden{--muted:#3a3a33}
+.stage-dark{color:var(--ivory);--fg:var(--ivory);--muted:#DCD5C8;--copper-ink:#E6C3A5;--btn-fg:var(--ivory);--btn-line:var(--copper-light)}
+.stage-dark .bi .vi{color:#E6C3A5}
+.stage-dark :focus-visible{outline-color:var(--copper-light)}
