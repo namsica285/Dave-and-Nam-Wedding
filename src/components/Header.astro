@@ -1,0 +1,62 @@
+---
+import { ui, pages, otherLocale, pageTitles, type Locale } from '../i18n/ui';
+interface Props { lang: Locale; page: string }
+const { lang, page } = Astro.props;
+const t = ui[lang];
+const other = otherLocale(lang);
+const here = page ? `/${other}/${page}/` : `/${other}/`;
+---
+<header class="site-header">
+  <div class="bar wrap">
+    <a class="brand" href={`/${lang}/`} aria-label="Dave & Nam">
+      <img src="/brand/DN-monogram-light.webp" width="64" height="53" alt="" />
+    </a>
+    <nav id="site-nav" aria-label="Main">
+      <ul>
+        {pages.map((p) => (
+          <li><a href={`/${lang}/${p}/`} aria-current={page === p ? 'page' : undefined}>{lang === 'en' ? pageTitles[p][0] : pageTitles[p][1]}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="lang" href={here} hreflang={other} lang={other} aria-label={t.langSwitchLabel} data-astro-reload="false">{t.langSwitch}</a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="site-nav">{t.menu}</button>
+  </div>
+</header>
+
+<style>
+  .site-header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--ivory) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid color-mix(in srgb,var(--copper) 35%,transparent)}
+  .bar{display:flex;align-items:center;gap:1rem;min-height:4.25rem}
+  .brand img{height:3rem;width:auto}
+  nav{margin-left:auto}
+  ul{display:flex;gap:clamp(.75rem,2vw,2rem);list-style:none;margin:0;padding:0}
+  nav a{display:inline-block;padding:.6rem .2rem;text-decoration:none;font:500 var(--step--1)/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(var(--copper),var(--copper)) 0 100%/0 1px no-repeat;transition:background-size var(--dur-base) var(--ease-out)}
+  nav a[aria-current="page"]{background-size:100% 1px;color:var(--copper-deep)}
+  @media (hover:hover) and (pointer:fine){nav a:hover{background-size:100% 1px}}
+  .lang{font:500 var(--step--1)/1 var(--font-body);letter-spacing:.08em;text-decoration:none;border:1px solid var(--copper);border-radius:999px;padding:.7rem 1rem;min-height:44px;display:inline-flex;align-items:center;transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base) var(--ease-out)}
+  .lang:active{transform:scale(.97)}
+  @media (hover:hover) and (pointer:fine){.lang:hover{background:color-mix(in srgb,var(--copper) 14%,transparent)}}
+  .menu{display:none}
+  @media (max-width:52rem){
+    .bar{flex-wrap:wrap}
+    .lang{margin-left:auto}
+    .menu{display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;background:none;border:1px solid var(--green);border-radius:999px;font:500 var(--step--1)/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:inherit;cursor:pointer}
+    nav{order:5;flex-basis:100%;margin:0;display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-base) var(--ease-out)}
+    nav ul{overflow:hidden;flex-direction:column;gap:0;min-height:0}
+    nav[data-open="true"]{grid-template-rows:1fr;padding-bottom:.75rem}
+    nav a{padding:.9rem 0;width:100%}
+  }
+</style>
+
+<script>
+  function wire() {
+    const btn = document.querySelector<HTMLButtonElement>('.site-header .menu');
+    const nav = document.getElementById('site-nav');
+    if (!btn || !nav) return;
+    btn.addEventListener('click', () => {
+      const open = nav.dataset.open !== 'true';
+      nav.dataset.open = String(open);
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  }
+  document.addEventListener('astro:page-load', wire);
+</script>
