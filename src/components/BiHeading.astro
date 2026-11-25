@@ -1,0 +1,12 @@
+---
+interface Props { en: string; vi: string; lang: 'en' | 'vi'; level?: 'h1' | 'h2' | 'h3'; dark?: boolean; class?: string }
+const { en, vi, lang, level = 'h2', dark = false } = Astro.props;
+const Tag = level;
+// The active language is the large line; the other sits beneath it. Both always visible.
+const [main, sub] = lang === 'en' ? [en, vi] : [vi, en];
+const subLang = lang === 'en' ? 'vi' : 'en';
+---
+<Tag class:list={['bi', { 'on-dark': dark }, Astro.props.class]}>
+  <span lang={lang}>{main}</span>
+  <span class="vi" lang={subLang}>{sub}</span>
+</Tag>

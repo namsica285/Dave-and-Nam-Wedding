@@ -1,0 +1,32 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ui, type Locale } from '../i18n/ui';
+
+interface Props { lang: Locale; title: string; page?: string; description?: string }
+const { lang, title, page = '', description = 'Dave & Nam, February 18, 2028, Oro Valley, Arizona' } = Astro.props;
+const t = ui[lang];
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#EEECDD" />
+    <title>{title} · Dave & Nam</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/brand/DN-monogram-light.webp" type="image/webp" />
+    <link rel="preload" href="/fonts/noto-serif-display-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/montserrat-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t.skip}</a>
+    <Header lang={lang} page={page} />
+    <main id="main" tabindex="-1"><slot /></main>
+    <Footer lang={lang} />
+  </body>
+</html>
