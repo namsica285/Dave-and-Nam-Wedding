@@ -43,9 +43,11 @@ export async function getRange(range: string): Promise<string[][]> {
   if (!r.ok) throw new Error(`read ${r.status}`);
   return (await r.json()).values ?? [];
 }
-/** Adds ONE row at the bottom. RAW means nothing a guest types can ever run as a formula. */
+/** Adds ONE row in the first empty row at the bottom. RAW means nothing a guest types can ever run as a formula.
+ *  OVERWRITE (not INSERT_ROWS) fills an empty row instead of inserting one, so formulas elsewhere in the
+ *  Command Center that point at "Form responses" row 2 onward never get shifted. */
 export async function appendRow(range: string, row: (string | number)[]): Promise<void> {
-  const r = await fetch(`${base}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
+  const r = await fetch(`${base}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=OVERWRITE`, {
     method: 'POST', headers: { authorization: `Bearer ${await accessToken()}`, 'content-type': 'application/json' }, body: JSON.stringify({ values: [row] }),
   });
   if (!r.ok) throw new Error(`append ${r.status}`);
