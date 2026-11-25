@@ -1,20 +1,14 @@
 ---
 // Copper foil gradient. sky.ts slides it with scroll and a slow drift, so a glint travels along every line.
-// still: the gradient stays put (no scroll drift); used where a single glint travels along the line instead.
-interface Props { id: string; w?: number; light?: boolean; still?: boolean }
-const { id, w = 400, light = false, still = false } = Astro.props;
+interface Props { id: string; w?: number; light?: boolean }
+const { id, w = 400, light = false } = Astro.props;
 // Deep shadow, warm body, a bright narrow glint, then back down: reads as foil, not flat copper.
-// A still line has no frozen white peak: its light comes from the travelling glint instead.
-const calm: [number, string][] = light
-  ? [[0, '#6A4127'], [0.3, '#94603F'], [0.5, '#B98560'], [0.7, '#94603F'], [1, '#6A4127']]
-  : [[0, '#9D6B48'], [0.3, '#B68360'], [0.5, '#D6A882'], [0.7, '#B68360'], [1, '#9D6B48']];
-const foil: [number, string][] = light
+const stops: [number, string][] = light
   ? [[0, '#6A4127'], [0.22, '#94603F'], [0.4, '#C08A62'], [0.48, '#F1CFA8'], [0.5, '#FFF0DC'], [0.53, '#E9C29C'], [0.62, '#A8714B'], [0.82, '#7E5134'], [1, '#6A4127']]
   : [[0, '#86573B'], [0.22, '#B68360'], [0.4, '#E2B793'], [0.48, '#FBE6CF'], [0.5, '#FFFFFF'], [0.53, '#F7DEC4'], [0.62, '#C99872'], [0.82, '#9D6B48'], [1, '#86573B']];
-const stops = still ? calm : foil;
 ---
 <defs>
-  <linearGradient id={id} data-foil={still ? undefined : true} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={w * 0.35} spreadMethod={still ? "reflect" : "repeat"} data-w={w}>
+  <linearGradient id={id} data-foil gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={w * 0.35} spreadMethod="repeat" data-w={w}>
     {stops.map(([o, c]) => <stop offset={o} stop-color={c} />)}
   </linearGradient>
 </defs>

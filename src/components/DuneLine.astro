@@ -1,26 +1,18 @@
 ---
 // The dune from the DN logo, drawn alone in copper foil. Used on the home night sky and atop the RSVP page.
 import FoilDefs from './FoilDefs.astro';
-import Glint from './Glint.astro';
 import { duneRidge, duneFold, duneView } from '../data/dune';
 interface Props { gid: string; light?: boolean; sw?: number; class?: string; [k: `data-${string}`]: string | number | boolean }
 const { gid, light = false, sw = 12, class: cls, ...rest } = Astro.props;
 ---
 <svg viewBox={duneView} class:list={['dune-line', cls]} aria-hidden="true" focusable="false" {...rest}>
-  <FoilDefs id={gid} w={900} light={light} still />
+  <FoilDefs id={gid} w={900} light={light} />
   <g fill="none" stroke={`url(#${gid})`} stroke-width={sw} stroke-linecap="round" stroke-linejoin="round">
     <path class="dl dl-ridge" pathLength="1" d={duneRidge} />
     <path class="dl dl-fold" pathLength="1" d={duneFold} />
-  </g>
-  <!-- both lines start at the left tip, so the glint sets off from there along each -->
-  <g class="dl-glint">
-    <Glint d={duneRidge} sw={sw} />
-    <Glint d={duneFold} sw={sw} delay={0.25} />
   </g>
   <slot />
 </svg>
 <style>
   .dune-line{display:block;width:100%;height:auto;overflow:visible}
-  /* the glint waits until the line has finished drawing */
-  .dl-glint{opacity:calc((var(--draw,1) - .97) * 34)}
 </style>
