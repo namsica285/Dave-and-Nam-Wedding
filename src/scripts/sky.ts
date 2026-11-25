@@ -43,7 +43,10 @@ function frame() {
   }
   for (const el of draws) {
     const r = el.getBoundingClientRect();
-    el.style.setProperty('--draw', clamp((vh * 0.9 - r.top) / (vh * 0.75)).toFixed(3));
+    // starts as the line enters the screen and is complete once it reaches 62% down the viewport,
+    // well before the text beneath it gets to the middle of the screen
+    const mid = r.top + r.height / 2;
+    el.style.setProperty('--draw', clamp((vh * 1.0 - mid) / (vh * 0.38)).toFixed(3));
   }
   shine();
 }
