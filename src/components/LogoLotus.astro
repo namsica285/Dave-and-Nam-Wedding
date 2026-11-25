@@ -3,8 +3,8 @@
 // --open: 0 = bud, 1 = as in the logo, >1 = past full bloom. sky.ts drives it with scroll.
 import FoilDefs from './FoilDefs.astro';
 import { art } from '../data/logo-art';
-interface Props { gid: string; open?: number; light?: boolean; sw?: number; wash?: boolean; class?: string; [k: `data-${string}`]: string | number }
-const { gid, open = 1, light = false, sw = 26, wash = true, class: cls, ...rest } = Astro.props;
+interface Props { gid: string; open?: number; light?: boolean; sw?: number; wash?: boolean; rail?: boolean; class?: string; [k: `data-${string}`]: string | number }
+const { gid, open = 1, light = false, sw = 26, wash = true, rail = false, class: cls, ...rest } = Astro.props;
 const [bx, by] = art.base;
 const axis = -60; // the lotus leans right; petals fold toward this direction
 const petals = (['p1', 'p2', 'p3', 'p4'] as const).map((k) => ({ d: art[k], delta: +(axis - (art as any)[k + '_ang']).toFixed(1) }));
@@ -13,7 +13,7 @@ const petals = (['p1', 'p2', 'p3', 'p4'] as const).map((k) => ({ d: art[k], delt
   <FoilDefs id={gid} w={700} light={light} />
   {wash && <image class="lwash" href="/brand/wash-lotus.webp" x="1580" y="760" width="1020" height="1100" />}
   <g fill="none" stroke={`url(#${gid})`} stroke-width={sw} stroke-linecap="round" stroke-linejoin="round">
-    <path d={art.stem} />
+    <path d={rail ? art.stemRail : art.stem} />
     {petals.map((p) => <path class="lp" style={`--d:${p.delta}`} d={p.d} />)}
   </g>
 </svg>

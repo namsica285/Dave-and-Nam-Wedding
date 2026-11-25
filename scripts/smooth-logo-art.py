@@ -75,7 +75,7 @@ def ss(a, b, v):
 H = 2.0
 def sigma_default(p): return 8.0
 # the climb from the top of the N up to the lotus: much gentler, so no elbow shows
-def sigma_stem(p): return 8.0 + 26.0 * ss(1760, 1700, p[1]) * ss(1470, 1520, p[1])
+def sigma_stem(p): return 8.0 + 110.0 * ss(1780, 1700, p[1]) * ss(1496, 1600, p[1])
 def sigma_petal(p): return 7.0
 
 new = dict(art)
@@ -95,6 +95,21 @@ end = (1637.3, 1880.5)
 ie = min(range(len(rp)), key=lambda i: math.dist(rp[i], end))
 stem = list(reversed(rp[ie:])); stem[0] = base
 new['stem'] = bezier(stem, 7)
+
+# stemRail: the same stem, but it eases into a straight vertical at x=1637.3 so it merges tangent
+# with the straight rail it grows from (home page timeline) instead of meeting it at an angle.
+RX = 1637.3
+cut = max(i for i, q in enumerate(stem) if q[1] <= 1690)
+P0 = stem[cut]; Pm = stem[max(0, cut - 6)]
+L = math.hypot(P0[0] - Pm[0], P0[1] - Pm[1]) or 1
+t = ((P0[0] - Pm[0]) / L, (P0[1] - Pm[1]) / L)
+Q = (RX, 1980.0); c1 = (P0[0] + t[0] * 70, P0[1] + t[1] * 70); c2 = (RX, Q[1] - 150)
+curve = []
+for i in range(1, 61):
+    u = i / 60; v = 1 - u
+    curve.append((v**3 * P0[0] + 3 * v * v * u * c1[0] + 3 * v * u * u * c2[0] + u**3 * Q[0],
+                  v**3 * P0[1] + 3 * v * v * u * c1[1] + 3 * v * u * u * c2[1] + u**3 * Q[1]))
+new['stemRail'] = bezier(stem[:cut + 1] + curve, 7)
 
 # pieces for the standalone dune (src/data/dune.ts)
 def run(k, x0, cut=None):
