@@ -1,47 +1,246 @@
 ---
-// Night sky: steady stars, twinkling stars, four-point sparkles and the odd shooting star.
+// The night sky, painted on a canvas so it can glow like real light instead of looking like flat shapes.
+//  - three depths of stars drift at different speeds, and lean a little with scroll and the pointer
+//  - every star twinkles on its own two slow rhythms, so the sky never pulses in unison
+//  - small stars occasionally glint: a soft halo and a thin cross of light that blooms and melts away
+//  - bigger stars breathe, their long rays swelling out of step with each other (no spinning)
+//  - shooting stars leave a fading trail and shed a few sparks
+// Stars wake up one by one the first time the sky scrolls into view.
 interface Props { count?: number; sparkles?: number; seed?: number; meteors?: boolean; class?: string }
-const { count = 220, sparkles = 14, seed: s0 = 11, meteors = true } = Astro.props;
-let seed = s0;
-const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-const stars = Array.from({ length: count }, () => {
-  const big = rnd() < 0.12;
-  return { x: +(rnd() * 1600).toFixed(1), y: +(rnd() * 1000).toFixed(1), r: +(big ? 1.6 + rnd() * 1.2 : 0.5 + rnd() * 1).toFixed(2),
-    tw: rnd() < 0.45, dur: +(2.2 + rnd() * 5).toFixed(1), d: +(rnd() * 7).toFixed(1), o: +(0.45 + rnd() * 0.55).toFixed(2) };
-});
-const sp = Array.from({ length: sparkles }, () => ({ x: +(rnd() * 1600).toFixed(0), y: +(rnd() * 900).toFixed(0), s: +(0.6 + rnd() * 0.9).toFixed(2), dur: +(3 + rnd() * 4).toFixed(1), d: +(rnd() * 8).toFixed(1) }));
+const { count = 220, sparkles = 14, seed = 11, meteors = true, class: cls } = Astro.props;
 ---
-<svg class:list={['stars', Astro.props.class]} viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <defs>
-    <radialGradient id={`glow-${s0}`}><stop offset="0" stop-color="#FFF6EA" /><stop offset=".35" stop-color="#F4DAC1" stop-opacity=".55" /><stop offset="1" stop-color="#F4DAC1" stop-opacity="0" /></radialGradient>
-    <linearGradient id={`meteor-${s0}`} x1="0" x2="1"><stop offset="0" stop-color="#F4DAC1" stop-opacity="0" /><stop offset="1" stop-color="#FFF6EA" /></linearGradient>
-  </defs>
-  <ellipse class="milky" cx="900" cy="380" rx="900" ry="120" transform="rotate(-18 900 380)" fill={`url(#glow-${s0})`} />
-  {stars.map((s) => (
-    <circle cx={s.x} cy={s.y} r={s.r} fill="#FFF8EE" opacity={s.o} class:list={{ tw: s.tw }} style={s.tw ? `--dur:${s.dur}s;animation-delay:-${s.d}s` : undefined} />
-  ))}
-  {sp.map((p) => (
-    <g transform={`translate(${p.x} ${p.y}) scale(${p.s})`}>
-      <g class="spark" style={`--dur:${p.dur}s;animation-delay:-${p.d}s`}>
-        <circle r="9" fill={`url(#glow-${s0})`} />
-        <path d="M0 -14 C1 -3 3 -1 14 0 C3 1 1 3 0 14 C-1 3 -3 1 -14 0 C-3 -1 -1 -3 0 -14Z" fill="#FFF6EA" />
-      </g>
-    </g>
-  ))}
-  {meteors && [0, 1].map((i) => (
-    <g class="meteor" style={`animation-delay:${4 + i * 7}s`} transform={`translate(${300 + i * 700} ${80 + i * 60}) rotate(24)`}>
-      <rect x="-180" y="-1" width="180" height="2" rx="1" fill={`url(#meteor-${s0})`} />
-    </g>
-  ))}
-</svg>
+<canvas class:list={['stars', cls]} data-stars data-count={count} data-sparkles={sparkles} data-seed={seed} data-meteors={meteors ? '1' : '0'} aria-hidden="true"></canvas>
 <style>
-  .stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-  .milky{opacity:.10}
-  .tw{transform-box:fill-box;transform-origin:center;animation:tw var(--dur) ease-in-out infinite}
-  @keyframes tw{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
-  .spark{transform-box:fill-box;transform-origin:center;opacity:0;animation:spark var(--dur) var(--ease-in-out) infinite}
-  @keyframes spark{0%,100%{opacity:0;transform:scale(.2) rotate(0)}45%{opacity:1;transform:scale(1) rotate(45deg)}60%{opacity:.9;transform:scale(.85) rotate(60deg)}}
-  .meteor{opacity:0;animation:meteor 14s linear infinite}
-  @keyframes meteor{0%{opacity:0;translate:0 0}2%{opacity:1}8%{opacity:0;translate:520px 230px}100%{opacity:0;translate:520px 230px}}
-  @media (prefers-reduced-motion:reduce){.tw,.spark,.meteor{animation:none}.spark{opacity:.8}}
+  .stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
 </style>
+<script>
+  type RGB = [number, number, number];
+  // warm ivory, moonlit white, a cool blue and a faint peach, like real stars seen by eye
+  const TINTS: RGB[] = [[255, 244, 226], [248, 246, 255], [208, 224, 255], [255, 216, 192]];
+  const rgba = (c: RGB, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const clamp = (n: number, a = 0, b = 1) => Math.min(b, Math.max(a, n));
+  const ease = (p: number) => p * p * (3 - 2 * p);
+
+  const sprite = (w: number, h: number, paint: (g: CanvasRenderingContext2D) => void) => {
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; paint(cv.getContext('2d')!); return cv;
+  };
+  // a soft round glow
+  const glow = (c: RGB) => sprite(64, 64, (g) => {
+    const r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    r.addColorStop(0, rgba(c, 1)); r.addColorStop(0.2, rgba(c, 0.85)); r.addColorStop(0.45, rgba(c, 0.22)); r.addColorStop(1, rgba(c, 0));
+    g.fillStyle = r; g.fillRect(0, 0, 64, 64);
+  });
+  // one ray of light: thin lens shape, brightest at its heart, melting to nothing at both tips
+  const ray = (c: RGB) => sprite(256, 24, (g) => {
+    const r = g.createLinearGradient(0, 0, 256, 0);
+    r.addColorStop(0, rgba(c, 0)); r.addColorStop(0.36, rgba(c, 0.22)); r.addColorStop(0.5, rgba(c, 1)); r.addColorStop(0.64, rgba(c, 0.22)); r.addColorStop(1, rgba(c, 0));
+    g.fillStyle = r; g.beginPath(); g.moveTo(0, 12); g.quadraticCurveTo(128, -2, 256, 12); g.quadraticCurveTo(128, 26, 0, 12); g.fill();
+  });
+  let GLOW: HTMLCanvasElement[] = [], RAY: HTMLCanvasElement[] = [];
+  const sprites = () => { if (!GLOW.length) { GLOW = TINTS.map(glow); RAY = TINTS.map(ray); } };
+
+  // pointer, eased, shared by every sky on the page (fine pointers only)
+  const ptr = { tx: 0, ty: 0, x: 0, y: 0 };
+  if (matchMedia('(pointer: fine)').matches) {
+    addEventListener('pointermove', (e) => { ptr.tx = (e.clientX / innerWidth - 0.5) * 2; ptr.ty = (e.clientY / innerHeight - 0.5) * 2; }, { passive: true });
+  }
+
+  type Star = { x: number; y: number; z: number; r: number; base: number; f1: number; f2: number; p1: number; p2: number; tint: number; delay: number; glinty: boolean; next: number; g0: number; gd: number; ang: number };
+  type Spark = { x: number; y: number; L: number; a: number; b: number; p: number; q: number; tint: number; delay: number; next: number; f0: number };
+  type Meteor = { x: number; y: number; dx: number; dy: number; len: number; t0: number; dur: number };
+  type Dust = { x: number; y: number; vx: number; vy: number; born: number; life: number };
+
+  function init(cv: HTMLCanvasElement) {
+    if (cv.dataset.ready) return;
+    cv.dataset.ready = '1';
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+    sprites();
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let s = +(cv.dataset.seed || 11) || 11;
+    const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    const total = +(cv.dataset.count || 220), nSpark = +(cv.dataset.sparkles || 12), wantMeteors = cv.dataset.meteors === '1';
+
+    // stars gather a little along a faint Milky Way band, so the sky has a shape and not just scatter
+    const bandY = (x: number) => 0.4 - (x - 0.5) * 0.34;
+    const stars: Star[] = Array.from({ length: total }, () => {
+      const inBand = rnd() < 0.36;
+      const x = rnd();
+      let y = inBand ? bandY(x) + (rnd() + rnd() + rnd() - 1.5) * 0.14 : rnd();
+      y = clamp(y, -0.04, 1.04);
+      const size = rnd();
+      const z = rnd();
+      const r = (size < 0.66 ? 0.38 + rnd() * 0.36 : size < 0.92 ? 0.74 + rnd() * 0.4 : 1.15 + rnd() * 0.6) * (0.85 + z * 0.3);
+      const t = rnd();
+      return {
+        x, y, z, r, base: (0.4 + rnd() * 0.55) * (0.6 + z * 0.4), f1: 0.35 + rnd() * 1.5, f2: 0.9 + rnd() * 2.8, p1: rnd() * 6.28, p2: rnd() * 6.28,
+        tint: t < 0.56 ? 0 : t < 0.78 ? 1 : t < 0.92 ? 2 : 3, delay: rnd() * 2.6,
+        glinty: r > 0.45 && rnd() < 0.4, next: 0.8 + rnd() * 9, g0: -99, gd: 0.5, ang: (rnd() - 0.5) * 0.35,
+      };
+    });
+    const sparks: Spark[] = Array.from({ length: nSpark }, () => ({
+      x: 0.04 + rnd() * 0.92, y: 0.04 + rnd() * 0.86, L: 11 + rnd() * 15, a: 0.45 + rnd() * 0.9, b: 0.4 + rnd() * 0.9, p: rnd() * 6.28, q: rnd() * 6.28,
+      tint: rnd() < 0.7 ? 0 : rnd() < 0.5 ? 1 : 3, delay: 0.6 + rnd() * 2.8, next: 4 + rnd() * 10, f0: -99,
+    }));
+
+    let w = 0, h = 0, dpr = 1, n = total;
+    const size = () => {
+      w = cv.clientWidth; h = cv.clientHeight; dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = Math.max(1, Math.round(w * dpr)); cv.height = Math.max(1, Math.round(h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      n = w < 520 ? Math.ceil(total * 0.65) : total;
+    };
+    size();
+
+    const t0 = performance.now();
+    let shown = -1;       // when this sky first came into view (seconds), so stars wake from that moment
+    let visible = false, raf = 0;
+    let meteor: Meteor | null = null, nextMeteor = 5 + Math.random() * 6;
+    const dust: Dust[] = [];
+
+    const rays = (tint: number, x: number, y: number, L: number, T: number, a: number, ang: number, diag = 0) => {
+      if (L < 0.5 || a <= 0.01) return;
+      ctx.globalAlpha = a;
+      ctx.save(); ctx.translate(x, y);
+      for (let k = 0; k < 2; k++) {
+        ctx.rotate(k ? Math.PI / 2 : ang);
+        ctx.drawImage(RAY[tint], -L, -T / 2, L * 2, T);
+      }
+      if (diag > 0) {
+        ctx.globalAlpha = a * 0.4;
+        for (let k = 0; k < 2; k++) { ctx.rotate(k ? Math.PI / 2 : Math.PI / 4 - Math.PI / 2 - ang); ctx.drawImage(RAY[tint], -L * diag, -T / 2.4, L * diag * 2, T / 1.2); }
+      }
+      ctx.restore();
+    };
+
+    function draw(t: number) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+      const sh = shown < 0 ? 0 : shown;
+      ptr.x += (ptr.tx - ptr.x) * 0.05; ptr.y += (ptr.ty - ptr.y) * 0.05;
+      const rect = cv.getBoundingClientRect();
+      const d = clamp(innerHeight / 2 - (rect.top + rect.height / 2), -700, 700);
+
+      // the faint Milky Way
+      ctx.save();
+      ctx.translate(w * 0.55 + ptr.x * -4, h * 0.38 + d * 0.02); ctx.rotate(-0.31); ctx.scale(w * 0.62, h * 0.13);
+      const mg = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+      const breathe = calm ? 1 : 0.92 + 0.08 * Math.sin(t * 0.25);
+      mg.addColorStop(0, `rgba(255,240,224,${0.13 * breathe})`); mg.addColorStop(0.45, `rgba(244,218,193,${0.055 * breathe})`); mg.addColorStop(1, 'rgba(244,218,193,0)');
+      ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.2832); ctx.fill();
+      ctx.restore();
+
+      for (let i = 0; i < n; i++) {
+        const st = stars[i];
+        const iv = ease(clamp((t - sh - st.delay) / 1.5));
+        if (iv <= 0) continue;
+        const x = (((st.x * w + (calm ? 0 : t * (0.5 + st.z * 1.7))) % w) + w) % w + ptr.x * 9 * st.z;
+        const y = st.y * h + d * 0.055 * (1 - st.z * 0.8) + ptr.y * 5 * st.z;
+        const edge = Math.min(1, x / 20, (w - x) / 20);
+        if (edge <= 0) continue;
+        // two slow rhythms multiplied together: irregular, never in step with the neighbours
+        const v = 0.5 + 0.5 * (0.6 * Math.sin(t * st.f1 + st.p1) + 0.4 * Math.sin(t * st.f2 + st.p2));
+        let a = st.base * (0.28 + 0.72 * v * v) * iv * edge;
+        let gl = 0;
+        if (st.glinty && !calm) {
+          if (t > st.next && iv > 0.9) { st.g0 = t; st.gd = 0.5 + Math.random() * 0.7; st.next = t + st.gd + 2.4 + Math.random() * 11; }
+          const p = (t - st.g0) / st.gd;
+          if (p >= 0 && p <= 1) gl = Math.sin(Math.PI * Math.pow(p, 0.75)) ** 2;
+        }
+        const rad = st.r * 2.1 + 0.6;
+        ctx.globalAlpha = Math.min(1, a + gl * 0.75);
+        ctx.drawImage(GLOW[st.tint], x - rad, y - rad, rad * 2, rad * 2);
+        if (gl > 0.02) {
+          const hr = (5 + st.r * 6) * (0.5 + gl * 0.5);
+          ctx.globalAlpha = gl * 0.45 * iv * edge; ctx.drawImage(GLOW[st.tint], x - hr, y - hr, hr * 2, hr * 2);
+          rays(st.tint, x, y, (6 + st.r * 9) * gl, 1.5, gl * 0.9 * iv * edge, st.ang);
+        }
+      }
+
+      // the larger stars: they breathe, and their rays swell and shrink out of step with each other
+      for (const sp of sparks) {
+        const iv = ease(clamp((t - sh - sp.delay) / 1.8));
+        if (iv <= 0) continue;
+        const x = (((sp.x * w + (calm ? 0 : t * 1.4)) % w) + w) % w + ptr.x * 10;
+        const y = sp.y * h + d * 0.03 + ptr.y * 6;
+        const edge = Math.min(1, x / 24, (w - x) / 24);
+        if (!calm && t > sp.next && iv > 0.9) { sp.f0 = t; sp.next = t + 7 + Math.random() * 12; }
+        const fp = (t - sp.f0) / 1.8;
+        const flare = fp >= 0 && fp <= 1 ? Math.sin(Math.PI * fp) ** 2 : 0;
+        const br = 0.72 + 0.28 * Math.sin(t * 0.9 + sp.p);
+        const Lh = sp.L * (0.55 + 0.45 * Math.sin(t * sp.a + sp.p)) * (1 + flare * 0.9);
+        const Lv = sp.L * (0.55 + 0.45 * Math.sin(t * sp.b + sp.q)) * (1 + flare * 0.9);
+        const hr = sp.L * (0.55 + 0.25 * br + flare * 0.5);
+        ctx.globalAlpha = (0.32 + 0.2 * br + flare * 0.3) * iv * edge;
+        ctx.drawImage(GLOW[sp.tint], x - hr, y - hr, hr * 2, hr * 2);
+        ctx.globalAlpha = Math.min(1, (0.8 + flare * 0.2)) * iv * edge;
+        ctx.drawImage(GLOW[sp.tint], x - 3.2, y - 3.2, 6.4, 6.4);
+        ctx.globalAlpha = 0.88 * iv * edge;
+        ctx.drawImage(RAY[sp.tint], x - Lh, y - 1.1, Lh * 2, 2.2);
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 2);
+        ctx.drawImage(RAY[sp.tint], -Lv, -1.1, Lv * 2, 2.2);
+        ctx.rotate(-Math.PI / 4); ctx.globalAlpha = 0.3 * iv * edge;
+        const Ld = Math.min(Lh, Lv) * 0.45; ctx.drawImage(RAY[sp.tint], -Ld, -0.8, Ld * 2, 1.6);
+        ctx.rotate(Math.PI / 2); ctx.drawImage(RAY[sp.tint], -Ld, -0.8, Ld * 2, 1.6);
+        ctx.restore();
+      }
+
+      // the odd shooting star: a bright head, a trail that fades behind it, a few sparks shed along the way
+      if (wantMeteors && !calm && shown >= 0) {
+        if (!meteor && t > nextMeteor) {
+          const ang = (18 + Math.random() * 14) * Math.PI / 180, len = Math.min(w, 1100) * (0.34 + Math.random() * 0.2);
+          meteor = { x: w * (0.08 + Math.random() * 0.6), y: h * (0.03 + Math.random() * 0.3), dx: Math.cos(ang), dy: Math.sin(ang), len, t0: t, dur: 1 + Math.random() * 0.5 };
+          nextMeteor = t + 9 + Math.random() * 13;
+        }
+        if (meteor) {
+          const p = (t - meteor.t0) / meteor.dur;
+          if (p >= 1) meteor = null;
+          else {
+            const e = 1 - (1 - p) * (1 - p);
+            const hx = meteor.x + meteor.dx * meteor.len * e, hy = meteor.y + meteor.dy * meteor.len * e;
+            const tl = meteor.len * 0.42 * (1 - p * 0.55);
+            const tx = hx - meteor.dx * tl, ty = hy - meteor.dy * tl;
+            const life = Math.sin(Math.PI * Math.pow(p, 0.7));
+            const lg = ctx.createLinearGradient(tx, ty, hx, hy);
+            lg.addColorStop(0, 'rgba(244,218,193,0)'); lg.addColorStop(0.7, `rgba(255,236,214,${0.35 * life})`); lg.addColorStop(1, `rgba(255,250,240,${0.95 * life})`);
+            ctx.globalAlpha = 1; ctx.strokeStyle = lg; ctx.lineWidth = 1.7; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+            ctx.globalAlpha = life; ctx.drawImage(GLOW[0], hx - 7, hy - 7, 14, 14);
+            if (Math.random() < 0.55) dust.push({ x: hx - meteor.dx * Math.random() * tl * 0.5, y: hy - meteor.dy * Math.random() * tl * 0.5, vx: (Math.random() - 0.5) * 14, vy: 6 + Math.random() * 14, born: t, life: 0.5 + Math.random() * 0.7 });
+          }
+        }
+        for (let i = dust.length - 1; i >= 0; i--) {
+          const q = dust[i], age = (t - q.born) / q.life;
+          if (age >= 1) { dust.splice(i, 1); continue; }
+          const k = 1 - age, qx = q.x + q.vx * age * q.life, qy = q.y + q.vy * age * q.life;
+          ctx.globalAlpha = k * k * 0.9; ctx.drawImage(GLOW[Math.random() < 0.5 ? 0 : 3], qx - 2.2, qy - 2.2, 4.4, 4.4);
+        }
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+
+    const frame = (now: number) => {
+      raf = 0;
+      if (!cv.isConnected) { io.disconnect(); ro.disconnect(); return; }
+      if (!visible || document.hidden) return;
+      draw((now - t0) / 1000);
+      raf = requestAnimationFrame(frame);
+    };
+    const start = () => { if (!raf && visible && !document.hidden && !calm) raf = requestAnimationFrame(frame); };
+
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible && shown < 0) shown = (performance.now() - t0) / 1000;
+      if (calm) { if (visible) draw(10); } else start();
+    }, { rootMargin: '120px' });
+    io.observe(cv);
+    const ro = new ResizeObserver(() => { size(); if (calm && visible) draw(10); });
+    ro.observe(cv);
+    document.addEventListener('visibilitychange', start);
+  }
+
+  const boot = () => document.querySelectorAll<HTMLCanvasElement>('canvas[data-stars]').forEach(init);
+  boot();
+  document.addEventListener('astro:page-load', boot);
+</script>
