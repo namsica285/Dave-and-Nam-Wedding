@@ -11,13 +11,13 @@ const bg: Record<Sky, string> = {
   golden: `linear-gradient(to bottom, ${smoothStops([['#EEECDD', 0], ['#EEECDD', 0.2], ['#E6D3BD', 0.62], ['#D1A585', 1]])})`,
   dusk: `linear-gradient(to bottom, ${smoothStops([['#4E3D4E', 0], ['#3F3443', 0.55], ['#2E2A36', 1]])})`,
   // fade: night that follows the sunset directly, so plum melts into night with no seam
-  night: fade ? `linear-gradient(to bottom, ${smoothStops([['#4E3D4E', 0], ['#3F3443', 0.18], ['#2E2A36', 0.42], ['#2E2A36', 1]])})` : 'var(--night)',
+  night: fade ? `linear-gradient(to bottom, ${smoothStops([['#4E3D4E', 0], ['#4A3B4B', 0.15], ['#403545', 0.38], ['#352E3C', 0.6], ['#2E2A36', 0.85], ['#2E2A36', 1]], 18)})` : 'var(--night)',
 };
 const dark = sky === 'dusk' || sky === 'night';
 const n = stars ?? (sky === 'night' ? 200 : sky === 'dusk' ? 60 : 0);
 ---
 <section class:list={['stage', `stage-${sky}`, { 'stage-dark': dark }, cls]} data-tone={dark ? 'dark' : 'light'} style={`background:${bg[sky]}`} {...rest}>
-  {n > 0 && <Stars count={n} sparkles={sparkles ?? (sky === 'night' ? 12 : 3)} seed={seed} meteors={sky === 'night'} class={`stage-stars stars-${sky}`} />}
+  {n > 0 && <Stars count={n} sparkles={sparkles ?? (sky === 'night' ? 12 : 3)} seed={seed} meteors={sky === 'night'} class={`stage-stars stars-${sky}${fade ? ' stars-fade' : ''}`} />}
   <div class="stage-in"><slot /></div>
 </section>
 <style>
@@ -25,5 +25,6 @@ const n = stars ?? (sky === 'night' ? 200 : sky === 'dusk' ? 60 : 0);
   .stage-in{position:relative}
   /* stars and the Milky Way glow fade in and out softly, so no chapter edge ever shows as a line */
   :global(.stars-dusk){-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 70%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 70%,#000 85%,transparent);opacity:.7}
+  :global(.stars-night.stars-fade){-webkit-mask-image:linear-gradient(to bottom,transparent 5%,rgba(0,0,0,.35) 30%,#000 60%,#000 80%,transparent)!important;mask-image:linear-gradient(to bottom,transparent 5%,rgba(0,0,0,.35) 30%,#000 60%,#000 80%,transparent)!important}
   :global(.stars-night){-webkit-mask-image:linear-gradient(to bottom,transparent,#000 35%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 35%,#000 80%,transparent)}
 </style>
