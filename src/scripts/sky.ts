@@ -6,13 +6,16 @@ let raf = 0;
 let sections: HTMLElement[] = [];
 let blooms: HTMLElement[] = [];
 let draws: HTMLElement[] = [];
-let foils: SVGLinearGradientElement[] = [];
+let foils: { g: SVGLinearGradientElement; svg: SVGSVGElement; dx: number; dy: number }[] = [];
 
 function collect() {
   sections = [...document.querySelectorAll<HTMLElement>('[data-tone]')];
   blooms = [...document.querySelectorAll<HTMLElement>('[data-open-to]')];
   draws = [...document.querySelectorAll<HTMLElement>('[data-draw]')];
-  foils = [...document.querySelectorAll<SVGLinearGradientElement>('[data-foil]')];
+  foils = [...document.querySelectorAll<SVGLinearGradientElement>('[data-foil]')].map((g) => ({
+    g, svg: g.ownerSVGElement!, dx: parseFloat(g.getAttribute('x2') || '0') - parseFloat(g.getAttribute('x1') || '0'),
+    dy: parseFloat(g.getAttribute('y2') || '0') - parseFloat(g.getAttribute('y1') || '0'),
+  }));
 }
 
 function frame() {
@@ -22,7 +25,12 @@ function frame() {
   let tone = 'light';
   for (const s of sections) {
     const r = s.getBoundingClientRect();
-    if (r.top <= 40 && r.bottom > 40) tone = s.dataset.tone || 'light';
+    if (r.top <= 40 && r.bottom > 40) {
+      const t = s.dataset.tone || 'light';
+      // "split:0.55" = light above that fraction of the section, dark below (the sunset band)
+      if (t.startsWith('split:')) tone = (40 - r.top) / r.height > parseFloat(t.slice(6)) ? 'dark' : 'light';
+      else tone = t;
+    }
   }
   document.documentElement.dataset.tone = tone;
 
@@ -45,9 +53,13 @@ const still = window.matchMedia('(prefers-reduced-motion: reduce)');
 function shine(now = performance.now()) {
   const drift = still.matches ? 0 : now / 14000;
   const shift = (window.scrollY / 1100 + drift) % 1;
-  for (const g of foils) {
-    const w = parseFloat(g.dataset.w || '400');
-    g.setAttribute('gradientTransform', `translate(${(shift * w).toFixed(1)} 0)`);
+  const vh = window.innerHeight;
+  for (const f of foils) {
+    // skip lines that are off screen: less repainting, smoother glint
+    const r = f.svg.getBoundingClientRect();
+    if (r.bottom < -50 || r.top > vh + 50) continue;
+    // move exactly along the gradient's own direction; one full period = seamless loop, no jump
+    f.g.setAttribute('gradientTransform', `translate(${(shift * f.dx).toFixed(2)} ${(shift * f.dy).toFixed(2)})`);
   }
 }
 let loop = 0;
