@@ -1,0 +1,18 @@
+---
+// Scroll progress, drawn as the Sonoran skyline. The faint line is the whole journey; the copper foil line
+// grows along it as you scroll, and a small glint rides the tip. sky.ts builds the path at the width it is shown.
+import FoilDefs from './FoilDefs.astro';
+---
+<svg class="progress-ridge" data-ridge aria-hidden="true" focusable="false">
+  <FoilDefs id="foil-progress" w={500} />
+  <path class="rbase" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round" />
+  <path class="rdrawn" pathLength="1" fill="none" stroke="url(#foil-progress)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+  <g class="rhead"><circle r="7" fill="#FFE9CF" opacity=".28" /><circle r="2.6" fill="#FFF6EA" /></g>
+</svg>
+<style>
+  .progress-ridge{display:block;width:100%;height:clamp(2.75rem,7vw,3.75rem);overflow:visible;pointer-events:none}
+  .rbase{opacity:.3}
+  .rdrawn{stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 2px rgba(255,236,214,.35))}
+  .rhead{opacity:0;transition:opacity var(--dur-slow) var(--ease-out)}
+  :global([data-ridge-on]) .rhead{opacity:1}
+</style>

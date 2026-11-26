@@ -14,7 +14,7 @@ const other = lang === 'en' ? 'vi' : 'en';
 const copy = {
   reception: { en: 'Dinner, dancing and desert skies to follow.', vi: 'Sau đó là tiệc tối, khiêu vũ và bầu trời sa mạc.' },
   menu: { en: 'Our menu will be shared here soon.', vi: 'Thực đơn sẽ sớm được cập nhật tại đây.' },
-  travel: { en: 'Travel and lodging details are coming soon: nearby hotels, getting there, and what to pack for a February evening in the desert.', vi: 'Thông tin đi lại và lưu trú sẽ sớm có: khách sạn gần đó, cách đến nơi, và nên mang gì cho một buổi tối tháng Hai trên sa mạc.' },
+  travel: { en: 'Airports, nearby hotels, and what to pack for a February evening in the desert are on our Destination page.', vi: 'Sân bay, khách sạn gần đó, và nên mang gì cho một buổi tối tháng Hai trên sa mạc đều có trên trang Điểm Đến.' },
 };
 ---
 <Base lang={lang} page="details" night title={lang === 'en' ? 'Details' : 'Chi Tiết'}>
@@ -80,6 +80,7 @@ const copy = {
     <div>
       <BiHeading level="h2" en="Travel & Stay" vi="Đi Lại & Lưu Trú" {lang} dark />
       <p class="soft">{copy.travel[lang]}</p>
+      <a class="btn" href={`/${lang}/destination/`}>{lang === 'en' ? 'Getting there and staying' : 'Đường đi và nơi ở'}</a>
     </div>
   </section>
 

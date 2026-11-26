@@ -1,8 +1,9 @@
 ---
 import Monogram from './Monogram.astro';
+import ProgressRidge from './ProgressRidge.astro';
 import { ui, pages, otherLocale, pageTitles, type Locale } from '../i18n/ui';
-interface Props { lang: Locale; page: string }
-const { lang, page } = Astro.props;
+interface Props { lang: Locale; page: string; progress?: boolean }
+const { lang, page, progress = false } = Astro.props;
 const t = ui[lang];
 const other = otherLocale(lang);
 const here = page ? `/${other}/${page}/` : `/${other}/`;
@@ -20,6 +21,7 @@ const here = page ? `/${other}/${page}/` : `/${other}/`;
     <a class="lang" href={here} hreflang={other} lang={other} aria-label={t.langSwitchLabel}>{t.langSwitch}</a>
     <button class="menu" type="button" aria-expanded="false" aria-controls="site-nav">{t.menu}</button>
   </div>
+  {progress && <div class="skyline wrap"><ProgressRidge /></div>}
 </header>
 
 <style>
@@ -45,6 +47,7 @@ const here = page ? `/${other}/${page}/` : `/${other}/`;
   :global(html[data-tone="dark"]) .lang{border-color:var(--copper-light)}
   .lang:active{transform:scale(.97)}
   @media (hover:hover) and (pointer:fine){.lang:hover{background:color-mix(in srgb,var(--copper) 16%,transparent)}}
+  .skyline{margin-top:-.15rem;margin-bottom:-1px}
   .menu{display:none}
   @media (max-width:66rem){
     .bar{flex-wrap:wrap;gap:.75rem}

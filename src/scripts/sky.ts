@@ -2,7 +2,10 @@
 // It only sets CSS variables (--open, --draw, header tone, foil shift). All drawing is CSS.
 const clamp = (n: number, a = 0, b = 1) => Math.min(b, Math.max(a, n));
 
+import { ridgePath } from '../lib/ridge';
+
 let raf = 0;
+let ridges: { svg: SVGSVGElement; drawn: SVGPathElement; head: SVGGElement; len: number }[] = [];
 let sections: HTMLElement[] = [];
 let blooms: HTMLElement[] = [];
 let draws: HTMLElement[] = [];
@@ -16,6 +19,28 @@ function collect() {
     g, svg: g.ownerSVGElement!, dx: parseFloat(g.getAttribute('x2') || '0') - parseFloat(g.getAttribute('x1') || '0'),
     dy: parseFloat(g.getAttribute('y2') || '0') - parseFloat(g.getAttribute('y1') || '0'),
   }));
+}
+
+function buildRidges() {
+  ridges = [...document.querySelectorAll<SVGSVGElement>('svg[data-ridge]')].map((svg) => {
+    const W = svg.clientWidth || 360, H = svg.clientHeight || 36;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const d = ridgePath(W, H);
+    const base = svg.querySelector<SVGPathElement>('.rbase')!;
+    const drawn = svg.querySelector<SVGPathElement>('.rdrawn')!;
+    base.setAttribute('d', d); drawn.setAttribute('d', d);
+    return { svg, drawn, head: svg.querySelector<SVGGElement>('.rhead')!, len: drawn.getTotalLength() };
+  });
+  document.documentElement.toggleAttribute('data-ridge-on', ridges.length > 0);
+}
+function updateRidges() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const p = clamp(max > 0 ? window.scrollY / max : 0);
+  for (const r of ridges) {
+    r.drawn.style.strokeDashoffset = String(1 - p);
+    const pt = r.drawn.getPointAtLength(p * r.len);
+    r.head.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+  }
 }
 
 function frame() {
@@ -48,6 +73,7 @@ function frame() {
     const mid = r.top + r.height / 2;
     el.style.setProperty('--draw', clamp((vh * 1.0 - mid) / (vh * 0.38)).toFixed(3));
   }
+  updateRidges();
   shine();
 }
 
@@ -78,6 +104,7 @@ function queue() { if (!raf) raf = requestAnimationFrame(frame); }
 
 function init() {
   collect();
+  buildRidges();
   if (!sections.length) document.documentElement.dataset.tone = 'light';
   frame();
   startLoop();
@@ -86,7 +113,7 @@ function init() {
 if (!(window as any).__skyBound) {
   (window as any).__skyBound = true;
   window.addEventListener('scroll', queue, { passive: true });
-  window.addEventListener('resize', queue);
+  window.addEventListener('resize', () => { buildRidges(); queue(); });
   document.addEventListener('visibilitychange', startLoop);
 }
 document.addEventListener('astro:page-load', init);

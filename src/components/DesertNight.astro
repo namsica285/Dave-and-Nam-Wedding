@@ -1,0 +1,268 @@
+---
+// The last thing on the Destination page: the Santa Catalinas as a silhouette darker than the night sky,
+// saguaros, ocotillo and prickly pear on the desert floor, and two white golden retrievers who chase each other
+// across it once the landscape is in view. Layers get darker toward the front. Flat silhouettes only, no watercolour.
+const smooth = (pts: [number, number][], close = true) => {
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+  }
+  return close ? d + ' L1600 360 L0 360Z' : d;
+};
+const far: [number, number][] = [[0, 252], [90, 240], [190, 226], [290, 232], [380, 196], [470, 208], [560, 170], [630, 150], [690, 158], [760, 118], [830, 96], [880, 70], [920, 62], [965, 84], [1010, 74], [1070, 104], [1130, 98], [1200, 140], [1290, 164], [1380, 186], [1470, 214], [1540, 230], [1600, 238]];
+const near: [number, number][] = [[0, 286], [110, 272], [230, 262], [330, 270], [450, 250], [560, 258], [660, 236], [750, 222], [830, 238], [930, 214], [1020, 226], [1110, 246], [1220, 262], [1320, 254], [1420, 266], [1520, 272], [1600, 280]];
+const floorY = 300;
+const f = (n: number) => +n.toFixed(1);
+
+// A saguaro the way the real one grows: a straight, ribbed-looking trunk and arms that leave in a smooth elbow
+// and turn skyward. Drawn as thick round-capped strokes so every joint is soft.
+type Sag = { x: number; h: number; arms: ('l' | 'r')[]; lift?: number };
+const saguaros: Sag[] = [
+  { x: 150, h: 128, arms: ['l', 'r'] }, { x: 226, h: 74, arms: ['r'] }, { x: 520, h: 96, arms: ['l'] },
+  { x: 700, h: 48, arms: [] }, { x: 1040, h: 70, arms: ['l', 'r'] }, { x: 1334, h: 138, arms: ['l', 'r'] },
+  { x: 1408, h: 86, arms: ['l'] }, { x: 1512, h: 60, arms: [] },
+];
+const sagPaths = saguaros.map((s) => {
+  const w = s.h * 0.1, aw = w * 0.82;
+  const trunk = `M${s.x} ${floorY + 6} V${f(floorY - s.h + w / 2)}`;
+  const arms = s.arms.map((side) => {
+    const dir = side === 'l' ? -1 : 1;
+    const ya = floorY - s.h * (side === 'l' ? 0.36 : 0.5), reach = s.h * (side === 'l' ? 0.3 : 0.26);
+    const yt = floorY - s.h * (side === 'l' ? 0.72 : 0.8);
+    const x1 = s.x + dir * reach;
+    return `M${s.x} ${f(ya)} C${f(s.x + dir * reach * 0.55)} ${f(ya)} ${f(x1)} ${f(ya - aw * 0.35)} ${f(x1)} ${f(ya - aw * 1.6)} V${f(yt)}`;
+  });
+  return { w: f(w), aw: f(aw), trunk, arms };
+});
+// ocotillo: whips fanning out of one point
+const ocotillos = [[420, 70], [1170, 62], [1575, 52]].map(([x, h]) =>
+  [-.5, -.28, -.08, .12, .3, .5].map((l, i) => `M${x} ${floorY + 3} Q${f(x + l * h * 0.15)} ${f(floorY - h * (.5 + i * .02))} ${f(x + l * h * 0.58)} ${f(floorY - h * (.78 + (i % 3) * .08))}`));
+// prickly pear: a few rounded paddles
+const pears: [number, number, number, number][] = [[300, 296, 11, 14], [316, 286, 10, 13], [333, 297, 10, 12], [880, 297, 10, 13], [896, 285, 9, 12], [1250, 296, 11, 13], [1267, 287, 9, 12]];
+const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [1100, 300, 40], [1460, 300, 30]];
+---
+<div class="desert" data-desert role="img" aria-label="Two white golden retrievers chase each other across a desert at night, beneath the Santa Catalina Mountains.">
+  <svg class="land" viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <path class="far" d={smooth(far)} />
+    <path class="near" d={smooth(near)} />
+    <path class="rim" fill="none" d={smooth(near, false)} />
+    <g class="ground">
+      <path d={`M0 ${floorY} H1600 V360 H0Z`} />
+      {mounds.map(([x, y, r]) => <ellipse cx={x} cy={y} rx={r * 1.6} ry={r * 0.4} />)}
+      {pears.map(([x, y, rx, ry]) => <ellipse cx={x} cy={y - ry * 0.6} rx={rx} ry={ry} />)}
+    </g>
+    <g class="plants" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      {sagPaths.map((s) => (
+        <g>
+          <path d={s.trunk} stroke-width={s.w} />
+          {s.arms.map((a) => <path d={a} stroke-width={s.aw} />)}
+        </g>
+      ))}
+      {ocotillos.map((stems) => <g stroke-width="2.4">{stems.map((d) => <path d={d} />)}</g>)}
+    </g>
+  </svg>
+
+  {[1, 2].map((n) => (
+    <div class={`dog dog-${n}`}>
+      <svg viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+          <g class="bob">
+            <!-- far legs, a little shaded for depth -->
+            <g transform="translate(106 56)"><g class="leg back fl"><path d="M-8 0 L8 0 L7 14 C8.5 22 9.5 30 11.5 41 L-8.5 41 C-6.5 30 -6.5 22 -7 14Z" /></g></g>
+            <g transform="translate(40 54)"><g class="leg back hl"><path d="M-11 0 L9 0 L8 14 C9.5 24 10.5 32 12.5 43 L-8.5 43 C-6.5 32 -7 24 -9 14Z" /></g></g>
+            <!-- long feathered tail plume, carried high and happy -->
+            <g class="tailg"><path class="tail" d="M32 46 C22 47 13 41 8 31 C6 25 8 20 12 20 C13 16 19 15 22 19 C26 21 28 27 31 32 C33 36 36 40 40 43Z" /></g>
+            <!-- full, fluffy body, ruff, neck and broad head -->
+            <path class="body" d="M30 45 C30 37 44 33 62 33 C80 32 92 33 102 31 C107 24 114 20 123 20 C133 20 140 26 142 33 L151 40 C154 43 153 47 149 49 L142 51 C141 57 137 62 131 66 C127 70 117 71 109 69 C101 72 89 72 81 69 C71 72 57 71 49 68 C38 68 28 61 28 53 C26 49 28 46 30 45Z" />
+            <!-- scalloped feathering: chest, belly and haunch -->
+            <path class="fringe" d="M114 66 C116 72 121 72 125 67 C129 69 132 66 133 62 C130 65 127 65 124 64 C120 67 117 67 114 66Z" />
+            <path class="fringe" d="M46 68 C48 73 54 73 58 69 C61 73 67 73 71 69 C74 73 80 73 84 69 C87 72 93 72 96 69 C90 70 54 70 46 68Z" />
+            <path class="fringe" d="M29 51 C25 57 28 64 35 65 C32 61 34 57 39 54Z" />
+            <path class="ear" d="M119 25 C129 22 138 29 136 43 C135 50 127 52 123 45 C119 39 117 31 119 25Z" />
+            <circle class="eye" cx="141" cy="33" r="1.7" />
+            <circle class="eye" cx="152" cy="41.5" r="2.6" />
+            <!-- near legs -->
+            <g transform="translate(116 56)"><g class="leg fr"><path d="M-8 0 L8 0 L7 14 C8.5 22 9.5 30 11.5 41 L-8.5 41 C-6.5 30 -6.5 22 -7 14Z" /></g></g>
+            <g transform="translate(50 54)"><g class="leg hr"><path d="M-11 0 L9 0 L8 14 C9.5 24 10.5 32 12.5 43 L-8.5 43 C-6.5 32 -7 24 -9 14Z" /></g></g>
+          </g>
+        </svg>
+    </div>
+  ))}
+</div>
+
+<style>
+  .desert{--ground:#17141D;position:relative;container-type:inline-size;height:max(14rem,22.5vw);margin-top:clamp(1rem,4vw,3rem);overflow:hidden}
+  .land{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .far{fill:#27222F}
+  .near{fill:#1E1A26}
+  .rim{stroke:rgba(196,145,111,.28);stroke-width:1.25;vector-effect:non-scaling-stroke}
+  .ground{fill:var(--ground)}
+  .plants{stroke:var(--ground)}
+
+  /* two dogs of the same size. Their movement is choreographed in the script below: they chase, wait for each
+     other, circle, then run off together. The CSS only places and dresses them. */
+  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .15rem);width:5.44rem;transform-origin:50% 100%;transform:translate3d(-30rem,0,0);will-change:transform;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
+  .dog svg{display:block;width:100%;height:auto;overflow:visible;will-change:transform}
+  .body,.tail,.fringe,.leg path{fill:#F8F2E4}
+  .back path{fill:#DCCBA8}
+  .tail,.fringe{fill:#F1E6CF}
+  .ear{fill:#E6D2AB}
+  .eye{fill:#2E2A36}
+  .leg{transform-box:fill-box;transform-origin:50% 0}
+  .tailg{transform-box:view-box;transform-origin:32px 46px}
+  @media (max-width:40rem){.dog{width:4.08rem}}
+  @media (prefers-reduced-motion:reduce){
+    .dog{transform:translateX(34cqw)}
+    .dog-2{transform:translateX(46cqw)}
+  }
+</style>
+
+<script>
+  // Two dogs, one choreography, a little different every time:
+  //  1. chase: the leader runs in, the follower speeds up and overtakes
+  //  2. wait: the one in front stops and turns back; the other trots up
+  //  3. circle: they orbit each other once or so, in either direction
+  //  4. run away together, side by side, off the right edge; a pause; then a new run
+  // Everything is driven by smooth curves and critically damped springs, so nothing jerks.
+  const ease = {
+    out: (p: number) => 1 - (1 - p) * (1 - p),
+    inOut: (p: number) => 0.5 - 0.5 * Math.cos(Math.PI * p),
+    inCubic: (p: number) => p * p * p,
+  };
+  const lerp = (a: number, b: number, p: number) => a + (b - a) * p;
+  const clamp = (n: number, a = 0, b = 1) => Math.min(b, Math.max(a, n));
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+  function start(el: HTMLElement) {
+    const dogs = [...el.querySelectorAll<HTMLElement>('.dog')].map((node) => ({
+      node,
+      svg: node.querySelector('svg') as SVGElement,
+      legs: ['fl', 'fr', 'hl', 'hr'].map((c) => node.querySelector<SVGElement>('.leg.' + c)!),
+      tail: node.querySelector<SVGElement>('.tailg')!,
+      bob: node.querySelector<SVGElement>('.bob')!,
+      x: -400, z: 0, vx: 0, vz: 0, vxs: 0, face: 1, faceT: 1, amp: 0, phase: Math.random(), y: 0, vy: 0, hops: [] as number[], tailT: Math.random() * 10,
+    }));
+    if (dogs.length < 2) return;
+    let W = el.clientWidth, u = dogs[0].node.offsetWidth;
+    type Run = { lead: number; d: number[]; cx: number; dir: number; turns: number; sep: number; t: number; pause: number; xL: number; xF: number; endL: [number, number]; endF: [number, number] };
+    let run: Run;
+    const newRun = (): Run => {
+      W = el.clientWidth; u = dogs[0].node.offsetWidth;
+      const sep = u * rand(1.55, 1.9);
+      const cx = clamp(rand(0.3, 0.46) * W, sep / 2 + 2.6 * u, W - sep / 2 - 3 * u);
+      const r: Run = {
+        lead: Math.random() < 0.5 ? 0 : 1,
+        d: [rand(4.2, 5.4), rand(2.2, 3.2), rand(5.5, 8), rand(5.5, 7)],
+        cx, dir: Math.random() < 0.5 ? 1 : -1, turns: rand(1, 1.6), sep,
+        t: 0, pause: rand(4, 9), xL: -1.4 * u, xF: -3.4 * u, endL: [0, 0], endF: [0, 0],
+      };
+      // where each dog ends up after circling: used as the starting point of the run-away
+      const th = r.dir * r.turns * 2 * Math.PI, R = sep / 2;
+      r.endF = [cx + R * Math.cos(th), 0.9 * Math.sin(th)];
+      r.endL = [cx + R * Math.cos(th + Math.PI), 0.9 * Math.sin(th + Math.PI)];
+      return r;
+    };
+    // target position of each dog (index 0 = leader) at run time t; z is depth, -1 far .. +1 near
+    const targets = (r: Run, t: number): { x: number; z: number; wait: boolean }[] => {
+      const [d1, d2, d3, d4] = r.d, R = r.sep / 2;
+      const meetF = r.cx + R, meetL = r.cx - R;
+      if (t < d1) {
+        const p = clamp(t / d1);
+        return [
+          { x: lerp(r.xL, meetL - 1.5 * u, ease.out(p)), z: 0, wait: false },
+          { x: lerp(r.xF, meetF, ease.out(Math.pow(p, 0.82))), z: 0.55 * Math.sin(Math.PI * clamp(p * 1.1)), wait: false },
+        ];
+      }
+      if (t < d1 + d2) {
+        const p = clamp((t - d1) / d2);
+        return [{ x: lerp(meetL - 1.5 * u, meetL, ease.inOut(p)), z: 0, wait: false }, { x: meetF, z: 0, wait: true }];
+      }
+      if (t < d1 + d2 + d3) {
+        const p = clamp((t - d1 - d2) / d3), th = r.dir * r.turns * 2 * Math.PI * ease.inOut(p);
+        return [
+          { x: r.cx + R * Math.cos(th + Math.PI), z: 0.9 * Math.sin(th + Math.PI), wait: false },
+          { x: r.cx + R * Math.cos(th), z: 0.9 * Math.sin(th), wait: false },
+        ];
+      }
+      const p = clamp((t - d1 - d2 - d3) / d4), run = ease.inCubic(p) * 0.65 + ease.inOut(p) * 0.35;
+      const out = W + 3.5 * u, weave = Math.sin(p * Math.PI * 2.4) * 0.35 * u * (1 - p);
+      return [
+        { x: lerp(r.endL[0], out + 0.2 * u, run) + weave, z: lerp(r.endL[1], -0.35, ease.inOut(clamp(p * 3))), wait: false },
+        { x: lerp(r.endF[0], out, run) - weave, z: lerp(r.endF[1], 0.35, ease.inOut(clamp(p * 3))), wait: false },
+      ];
+    };
+    const reset = () => {
+      run = newRun();
+      const order = run.lead === 0 ? [0, 1] : [1, 0]; // order[0] is the leader
+      dogs.forEach((d, i) => {
+        const role = order.indexOf(i);
+        d.x = role === 0 ? run.xL : run.xF; d.z = 0; d.vx = d.vz = d.vxs = 0; d.face = d.faceT = 1; d.amp = 0; d.y = d.vy = 0;
+        d.hops = role === 0 ? [run.d[0] + run.d[1] + rand(0.3, 1.2), run.d[0] + run.d[1] + run.d[2] * rand(0.5, 0.8)] : [run.d[0] + rand(0.1, 0.5), run.d[0] + run.d[1] + run.d[2] * rand(0.2, 0.4)];
+      });
+      (reset as any).order = order;
+    };
+    reset();
+    const total = () => run.d.reduce((a, b) => a + b, 0);
+
+    let last = performance.now(), raf = 0;
+    const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      run.t += dt;
+      const order: number[] = (reset as any).order;
+      const T = run.t < total() ? targets(run, run.t) : null;
+      if (run.t > total() + run.pause) { reset(); return; }
+      dogs.forEach((d, i) => {
+        const role = order.indexOf(i);
+        const tg = T ? T[role] : { x: W + 4 * u, z: 0, wait: false };
+        // critically damped spring toward the target
+        const k = 16, c = 8;
+        d.vx += ((tg.x - d.x) * k - d.vx * c) * dt; d.x += d.vx * dt;
+        d.vz += ((tg.z - d.z) * k - d.vz * c) * dt; d.z += d.vz * dt;
+        d.vxs += (d.vx - d.vxs) * Math.min(1, dt * 6);
+        // facing: the way it moves, or toward its friend when standing still
+        const other = dogs[1 - i];
+        const moving = Math.abs(d.vxs) > (d.faceT === Math.sign(d.vxs) ? 14 : 34);
+        d.faceT = moving ? Math.sign(d.vxs) : (T && tg.wait) || Math.abs(d.vxs) < 14 ? Math.sign(other.x - d.x) || d.faceT : d.faceT;
+        d.face += (d.faceT - d.face) * (1 - Math.exp(-dt * 9));
+        // hops: little leaps of joy
+        if (d.hops.length && run.t >= d.hops[0]) { d.hops.shift(); d.vy = 300 * (u / 77); }
+        d.vy -= 1100 * (u / 77) * dt; d.y += d.vy * dt; if (d.y < 0) { d.y = 0; d.vy = 0; }
+        // gait follows speed: still = standing, slow = walk, fast = run
+        const speed = Math.hypot(d.vx, d.vz * 20);
+        const freq = 1.1 + Math.min(speed / (u * 1.7), 3.1);
+        d.amp += (clamp(speed / (u * 1.4)) - d.amp) * (1 - Math.exp(-dt * 7));
+        d.phase += dt * freq * (d.amp > 0.04 ? 1 : 0);
+        const A = d.amp * 34 + (d.y > 1 ? 14 : 0), P = d.phase * 2 * Math.PI;
+        const off = [0, 0.12, 0.46, 0.58];
+        d.legs.forEach((leg, li) => { leg.style.rotate = `${(Math.sin(P - off[li] * 2 * Math.PI) * A - (d.y > 1 ? 10 : 0)).toFixed(2)}deg`; });
+        d.tailT += dt * (2 + (1 - d.amp) * 2);
+        d.tail.style.rotate = `${(Math.sin(d.tailT * 2.6) * (3 + (1 - d.amp) * 9) - d.amp * 6).toFixed(2)}deg`;
+        d.bob.style.translate = `0 ${(-Math.abs(Math.sin(P)) * 2.6 * d.amp).toFixed(2)}px`;
+        // place: depth moves a dog toward the viewer (down, a touch bigger, in front)
+        const y = -d.y + d.z * 0.45 * 16, s = (1 + d.z * 0.035) * (d.node.classList.contains('dog-2') ? 0.96 : 1);
+        d.node.style.transform = `translate3d(${(d.x - 0).toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(3)})`;
+        d.node.style.zIndex = String(Math.round(10 + d.z * 5));
+        d.svg.style.transform = `scaleX(${d.face.toFixed(3)})`;
+      });
+    };
+    return { play() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }, stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } } };
+  }
+
+  function watch() {
+    document.querySelectorAll<HTMLElement>('[data-desert]').forEach((el) => {
+      if ((el as any).__watched) return;
+      (el as any).__watched = true;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const show = start(el);
+      if (!show) return;
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) { if (e.isIntersecting) show.play(); else show.stop(); }
+      }, { threshold: 0.2 });
+      io.observe(el);
+    });
+  }
+  document.addEventListener('astro:page-load', watch);
+</script>
