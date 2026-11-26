@@ -20,7 +20,7 @@ const events = event.day;
 const g2 = smoothStops([['#EEECDD', 0], ['#EEECDD', 0.25], ['#E6D3BD', 0.62], ['#D1A585', 1]]);
 const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
 ---
-<Base lang={lang} title="Dave & Nam" night>
+<Base lang={lang} title={t.couple} night>
   <!-- 1. First light: the logo draws itself, then its watercolor blooms underneath -->
   <section class="s1" data-tone="light" aria-label={lang === 'en' ? 'First light' : 'Bình minh'}>
     <div class="wrap hero">
@@ -51,7 +51,7 @@ const g3 = smoothStops([['#4E3D4E', 0], ['#3F3443', 0.5], ['#2E2A36', 1]]);
         </g>
         <g class="letters" transform="scale(4)" fill="#24342A" fill-rule="evenodd" set:html={art.letters2} />
       </svg>
-      <h1 class="names">Dave &amp; Nam</h1>
+      <h1 class="names">{t.couple}</h1>
       <p class="when">{t.date}<br />{t.place}</p>
       <p class="cue" aria-hidden="true">{t.scroll}</p>
     </div>
