@@ -50,3 +50,7 @@ body.tone-night footer .meta{color:var(--copper-light)}
 .stage-dark{color:var(--ivory);--fg:var(--ivory);--muted:#DCD5C8;--copper-ink:#E6C3A5;--btn-fg:var(--ivory);--btn-line:var(--copper-light)}
 .stage-dark .bi .vi{color:#E6C3A5}
 .stage-dark :focus-visible{outline-color:var(--copper-light)}
+
+/* pages with the skyline progress strip: the sticky header is taller, so anchors land lower */
+body.has-progress{scroll-padding-top:8rem}
+html:has(body.has-progress){scroll-padding-top:8rem}

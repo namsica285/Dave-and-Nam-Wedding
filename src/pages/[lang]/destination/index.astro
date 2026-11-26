@@ -4,8 +4,6 @@ import BiHeading from '../../../components/BiHeading.astro';
 import LogoLotus from '../../../components/LogoLotus.astro';
 import Stage from '../../../components/Stage.astro';
 import SunsetBand from '../../../components/SunsetBand.astro';
-import SunMark from '../../../components/SunMark.astro';
-import RidgeLine from '../../../components/RidgeLine.astro';
 import AreaMap from '../../../components/AreaMap.astro';
 import { locales, type Locale } from '../../../i18n/ui';
 import { event } from '../../../data/event';
@@ -18,14 +16,13 @@ const mapUrl = event.mapUrl;
 const openMap = lang === 'en' ? 'Open in Maps' : 'Mở bản đồ';
 const tentative = lang === 'en' ? 'Venue and details are tentative and may change.' : 'Địa điểm và chi tiết là dự kiến, có thể thay đổi.';
 ---
-<Base lang={lang} page="destination" night title={lang === 'en' ? 'Destination' : 'Điểm Đến'} description={lang === 'en' ? 'Tucson and the Sonoran Desert: getting here, where to stay, and what the desert is like in February.' : 'Tucson và sa mạc Sonoran: đường đi, nơi ở, và sa mạc vào tháng Hai.'}>
+<Base lang={lang} page="destination" night progress title={lang === 'en' ? 'Destination' : 'Điểm Đến'} description={lang === 'en' ? 'Tucson and the Sonoran Desert: getting here, where to stay, and what the desert is like in February.' : 'Tucson và sa mạc Sonoran: đường đi, nơi ở, và sa mạc vào tháng Hai.'}>
 
   <!-- Day: the idea, the reason, and the facts -->
   <Stage sky="day">
     <section class="hero wrap">
       <BiHeading level="h1" en={d.title.en} vi={d.title.vi} {lang} />
       <p class="sub" lang={lang}>{t(d.sub)}</p>
-      <RidgeLine gid="foil-ridge" class="ridge" />
       <p class="lede">{t(d.lede)}</p>
     </section>
 
@@ -53,13 +50,12 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
     </section>
 
     <!-- I. Morning -->
-    <section class="wrap chapter" aria-labelledby="morning-h">
-      <div class="ch-head"><SunMark phase="morning" /><BiHeading id="morning-h" level="h2" en={d.morning.h.en} vi={d.morning.h.vi} {lang} /></div>
+    <section class="wrap chapter">
       <div class="cols">
         <div class="essay">
-          <BiHeading level="h3" en={d.morning.place.h.en} vi={d.morning.place.h.vi} {lang} />
+          <BiHeading level="h2" en={d.morning.place.h.en} vi={d.morning.place.h.vi} {lang} />
           {ps(d.morning.place.p).map((p) => <p>{p}</p>)}
-          <BiHeading level="h3" en={d.morning.flowers.h.en} vi={d.morning.flowers.h.vi} {lang} class="gap" />
+          <BiHeading level="h2" en={d.morning.flowers.h.en} vi={d.morning.flowers.h.vi} {lang} class="gap" />
           {ps(d.morning.flowers.p).map((p) => <p>{p}</p>)}
         </div>
         <aside class="practical" aria-labelledby="arrive-h">
@@ -76,30 +72,28 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
 
   <!-- Midday into golden hour -->
   <Stage sky="golden">
-    <section class="wrap chapter" aria-labelledby="midday-h">
-      <div class="ch-head"><SunMark phase="midday" /><BiHeading id="midday-h" level="h2" en={d.midday.h.en} vi={d.midday.h.vi} {lang} /></div>
+    <section class="wrap chapter">
       <div class="cols">
         <div class="essay">
-          <BiHeading level="h3" en={d.midday.sky.h.en} vi={d.midday.sky.h.vi} {lang} />
+          <BiHeading level="h2" en={d.midday.sky.h.en} vi={d.midday.sky.h.vi} {lang} />
           {ps(d.midday.sky.p).map((p) => <p>{p}</p>)}
           <p class="tip">{t(d.midday.sky.tip)}</p>
         </div>
         <div class="essay">
-          <BiHeading level="h3" en={d.midday.table.h.en} vi={d.midday.table.h.vi} {lang} />
+          <BiHeading level="h2" en={d.midday.table.h.en} vi={d.midday.table.h.vi} {lang} />
           {ps(d.midday.table.p).map((p) => <p>{p}</p>)}
-          <BiHeading level="h3" en={d.midday.table.home.h.en} vi={d.midday.table.home.h.vi} {lang} class="gap" />
+          <BiHeading level="h2" en={d.midday.table.home.h.en} vi={d.midday.table.home.h.vi} {lang} class="gap" />
           <p>{t(d.midday.table.home.p)}</p>
         </div>
       </div>
     </section>
 
-    <section class="wrap chapter last" aria-labelledby="golden-h">
-      <div class="ch-head"><SunMark phase="golden" /><BiHeading id="golden-h" level="h2" en={d.golden.h.en} vi={d.golden.h.vi} {lang} /></div>
+    <section class="wrap chapter last">
       <div class="cols">
         <div class="essay">
-          <BiHeading level="h3" en={d.golden.light.h.en} vi={d.golden.light.h.vi} {lang} />
+          <BiHeading level="h2" en={d.golden.light.h.en} vi={d.golden.light.h.vi} {lang} />
           {ps(d.golden.light.p).map((p) => <p>{p}</p>)}
-          <BiHeading level="h3" en={d.golden.venue.h.en} vi={d.golden.venue.h.vi} {lang} class="gap" />
+          <BiHeading level="h2" en={d.golden.venue.h.en} vi={d.golden.venue.h.vi} {lang} class="gap" />
           {ps(d.golden.venue.p).map((p) => <p>{p}</p>)}
           <p class="soft">{tentative}</p>
           <a class="btn venue-btn" href={mapUrl} target="_blank" rel="noopener">{openMap}</a>
@@ -116,15 +110,14 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
 
   <!-- Dusk and night: the dark sky, the words, the invitation to stay -->
   <Stage sky="dusk" seed={21}>
-    <section class="wrap chapter" aria-labelledby="night-h">
-      <div class="ch-head"><SunMark phase="night" /><BiHeading id="night-h" level="h2" en={d.night.h.en} vi={d.night.h.vi} {lang} dark /></div>
+    <section class="wrap chapter">
       <div class="cols">
         <div class="essay">
-          <BiHeading level="h3" en={d.night.dark.h.en} vi={d.night.dark.h.vi} {lang} dark />
+          <BiHeading level="h2" en={d.night.dark.h.en} vi={d.night.dark.h.vi} {lang} dark />
           {ps(d.night.dark.p).map((p) => <p>{p}</p>)}
         </div>
         <div class="essay words">
-          <BiHeading level="h3" en={d.night.words.h.en} vi={d.night.words.h.vi} {lang} dark />
+          <BiHeading level="h2" en={d.night.words.h.en} vi={d.night.words.h.vi} {lang} dark />
           <dl>
             {d.night.words.list.map((w) => (
               <div class="word">
@@ -158,11 +151,11 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
   :global(main h1){font-size:var(--step-4)}
   :global(main h2){font-size:var(--step-3)}
   :global(main h3){font-size:var(--step-1)}
+  .essay :global(h2){font-size:var(--step-2)}
   p{max-width:var(--measure)}
 
   .hero{display:grid;gap:1rem;padding-block:clamp(3rem,8vw,6rem) clamp(1.5rem,4vw,3rem)}
   .sub{font-family:var(--font-display);font-style:italic;font-size:var(--step-1);color:var(--copper-ink);margin:0}
-  .hero :global(.ridge){margin-block:clamp(.5rem,2vw,1.5rem)}
   .lede{font-family:var(--font-display);font-size:var(--step-1);line-height:1.5;max-width:44rem;margin:0}
 
   .why{display:grid;grid-template-columns:minmax(0,1fr);gap:1.5rem;padding-block:clamp(2rem,5vw,4rem)}
@@ -182,12 +175,10 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
 
   .chapter{padding-block:clamp(2.5rem,5.5vw,4.5rem)}
   .chapter.last{padding-bottom:clamp(4rem,9vw,7rem)}
-  .ch-head{display:flex;align-items:center;gap:clamp(1rem,3vw,1.75rem);margin-bottom:clamp(1.75rem,4vw,3rem);color:var(--copper-ink)}
-  .ch-head :global(.bi){color:var(--fg)}
   .cols{display:grid;gap:clamp(2rem,5vw,3.5rem);grid-template-columns:minmax(0,1fr)}
   @media (min-width:64rem){.cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(3rem,6vw,6rem);align-items:start}}
   .essay :global(.gap){margin-top:2.25rem}
-  .essay :global(h3){margin-bottom:.9rem}
+  .essay :global(h2),.essay :global(h3){margin-bottom:.9rem}
   .essay p{margin-bottom:1.1em}
   .tip{padding:1rem 1.25rem;border:1.5px solid color-mix(in srgb,var(--copper) 45%,transparent);border-radius:12px;background:color-mix(in srgb,var(--ivory) 40%,transparent)}
   .soft{color:var(--muted)}

@@ -3,7 +3,6 @@ import Base from '../../../layouts/Base.astro';
 import BiHeading from '../../../components/BiHeading.astro';
 import Stage from '../../../components/Stage.astro';
 import SunsetBand from '../../../components/SunsetBand.astro';
-import RidgeLine from '../../../components/RidgeLine.astro';
 import LogoLotus from '../../../components/LogoLotus.astro';
 import { locales, type Locale } from '../../../i18n/ui';
 import { after } from '../../../data/after-vows';
@@ -13,13 +12,12 @@ const t = (o: { en: string; vi: string }) => o[lang];
 const readMore = lang === 'en' ? 'Read more' : 'Xem thêm';
 const back = t(after.back);
 ---
-<Base lang={lang} page="destination" night title={lang === 'en' ? 'After the Vows' : 'Sau Lễ Cưới'} description={lang === 'en' ? 'Three ways to spend the weekend after the wedding in southern Arizona.' : 'Ba cách tận hưởng cuối tuần sau lễ cưới ở miền nam Arizona.'}>
+<Base lang={lang} page="destination" night progress title={lang === 'en' ? 'After the Vows' : 'Sau Lễ Cưới'} description={lang === 'en' ? 'Three ways to spend the weekend after the wedding in southern Arizona.' : 'Ba cách tận hưởng cuối tuần sau lễ cưới ở miền nam Arizona.'}>
 
   <Stage sky="day">
     <section class="wrap hero">
       <a class="back" href={`/${lang}/destination/`}>← {back}</a>
       <BiHeading level="h1" en={after.title.en} vi={after.title.vi} {lang} />
-      <RidgeLine gid="foil-ridge-av" class="ridge" />
       <p class="lede">{t(after.lede)}</p>
       <ul class="jump" aria-label={lang === 'en' ? 'Jump to' : 'Chuyển nhanh đến'}>
         {after.tempos.map((tp) => <li><a href={`#${tp.id}`}>{t(tp.h)}</a></li>)}
@@ -78,13 +76,12 @@ const back = t(after.back);
   .hero{display:grid;gap:1rem;padding-block:clamp(2.5rem,7vw,5rem) clamp(2rem,5vw,3.5rem)}
   .back{font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--copper-ink);padding-block:.75rem;justify-self:start}
   @media (hover:hover) and (pointer:fine){.back:hover{text-decoration:underline}}
-  .hero :global(.ridge){margin-block:1rem}
   .lede{font-family:var(--font-display);font-size:var(--step-1);line-height:1.5;max-width:44rem;margin:0}
   .jump{list-style:none;margin:1rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.75rem}
   .jump a{display:inline-flex;align-items:center;min-height:48px;padding:.6rem 1.25rem;border:1.5px solid var(--copper);border-radius:999px;text-decoration:none;font-weight:600;font-size:var(--step--1)}
   @media (hover:hover) and (pointer:fine){.jump a:hover{background:color-mix(in srgb,var(--copper) 16%,transparent)}}
 
-  .tempo{display:grid;gap:1rem;padding-block:clamp(2.5rem,6vw,4.5rem) 0;scroll-margin-top:5rem;justify-items:start}
+  .tempo{display:grid;gap:1rem;padding-block:clamp(2.5rem,6vw,4.5rem) 0;scroll-margin-top:8rem;justify-items:start}
   .tempo:last-of-type{padding-bottom:clamp(4rem,9vw,7rem)}
   .meta{font:600 var(--step-label)/1.4 var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:var(--copper-ink);margin:0}
   .intro{margin:0;font-size:var(--step-0)}

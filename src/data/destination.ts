@@ -39,7 +39,6 @@ export const dest = {
   },
 
   morning: {
-    h: { en: 'Morning', vi: 'Buổi Sáng' },
     place: {
       h: { en: 'The Only Place on Earth', vi: 'Nơi Duy Nhất Trên Trái Đất' },
       p: {
@@ -77,7 +76,6 @@ export const dest = {
   },
 
   midday: {
-    h: { en: 'Midday', vi: 'Buổi Trưa' },
     sky: {
       h: { en: 'The Sky Islands', vi: 'Những Hòn Đảo Trên Trời' },
       p: {
@@ -112,7 +110,6 @@ export const dest = {
   },
 
   golden: {
-    h: { en: 'Golden Hour', vi: 'Chiều Tà' },
     light: {
       h: { en: 'The Light', vi: 'Ánh Sáng' },
       p: {
@@ -143,7 +140,6 @@ export const dest = {
   },
 
   night: {
-    h: { en: 'Night', vi: 'Đêm' },
     dark: {
       h: { en: 'A Dark Sky', vi: 'Bầu Trời Đêm' },
       p: {
