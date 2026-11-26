@@ -10,7 +10,7 @@ const here = page ? `/${other}/${page}/` : `/${other}/`;
 ---
 <header class="site-header">
   <div class="bar wrap">
-    <a class="brand" href={`/${lang}/`} aria-label="Dave & Nam"><Monogram /></a>
+    <a class="brand" href={`/${lang}/`} aria-label={t.couple}><Monogram /></a>
     <nav id="site-nav" aria-label="Main">
       <ul>
         {pages.map((p) => (
