@@ -1,0 +1,124 @@
+---
+// The last thing on the Destination page: the Santa Catalinas as a silhouette darker than the night sky,
+// saguaros on the desert floor, and two small white golden retrievers who run across once the landscape is in view.
+// Layers get darker toward the front. No watercolour: flat silhouettes only, with a faint copper rim on the near range.
+const smooth = (pts: [number, number][], close = true) => {
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+  }
+  return close ? d + ' L1600 360 L0 360Z' : d;
+};
+const far: [number, number][] = [[0, 250], [120, 233], [260, 214], [380, 192], [500, 206], [620, 160], [700, 122], [760, 140], [830, 96], [900, 58], [960, 90], [1030, 68], [1110, 116], [1190, 150], [1300, 176], [1420, 205], [1520, 228], [1600, 236]];
+const near: [number, number][] = [[0, 284], [140, 268], [300, 252], [460, 262], [600, 238], [740, 214], [860, 236], [980, 210], [1120, 244], [1260, 262], [1400, 252], [1520, 268], [1600, 276]];
+const floorY = 300;
+// saguaro silhouettes made of rounded bars: trunk plus two arms
+const sag = (x: number, h: number) => {
+  const w = h * 0.115, aw = w * 0.85;
+  const L = h * 0.3, R = h * 0.24;
+  const r = (X: number, Y: number, W: number, H: number) => ({ x: +X.toFixed(1), y: +Y.toFixed(1), w: +W.toFixed(1), h: +H.toFixed(1), rx: +(W / 2).toFixed(1) });
+  return [
+    r(x - w / 2, floorY - h, w, h + 4),
+    r(x - w / 2 - L, floorY - h * 0.42 - aw, L + w / 2 + 1, aw),
+    r(x - w / 2 - L, floorY - h * 0.7, aw, h * 0.3 + aw),
+    r(x + w / 2 - 1, floorY - h * 0.55 - aw, R + w / 2, aw),
+    r(x + w / 2 + R - aw, floorY - h * 0.78, aw, h * 0.23 + aw),
+  ];
+};
+const cacti = [[150, 124], [214, 72], [520, 92], [1010, 66], [1332, 132], [1392, 84], [1500, 58]].flatMap(([x, h]) => sag(x, h));
+const mounds: [number, number, number][] = [[330, 300, 40], [660, 300, 30], [820, 300, 46], [1180, 300, 34], [1610, 300, 30]];
+---
+<div class="desert" data-desert role="img" aria-label="Two small white golden retrievers run across a desert at night, beneath the Santa Catalina Mountains.">
+  <svg class="land" viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <path class="far" d={smooth(far)} />
+    <path class="near" d={smooth(near)} />
+    <path class="rim" fill="none" d={smooth(near, false)} />
+    <g class="ground">
+      <path d={`M0 ${floorY} H1600 V360 H0Z`} />
+      {mounds.map(([x, y, r]) => <ellipse cx={x} cy={y} rx={r * 1.6} ry={r * 0.45} />)}
+      {cacti.map((c) => <rect x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx} />)}
+    </g>
+  </svg>
+
+  {[1, 2].map((n) => (
+    <div class={`dog dog-${n}`}>
+      <svg viewBox="0 0 140 90" aria-hidden="true" focusable="false">
+        <g class="bob">
+          <!-- far legs, a little darker for depth -->
+          <g transform="translate(88 52)"><g class="leg back fl"><path d="M-5 0 L5 0 L3.5 15 L5 27 L8 31 L-4 31 L-2.5 27 L-3.5 15Z" /></g></g>
+          <g transform="translate(42 49)"><g class="leg back hl"><path d="M-7 0 L6 0 L4 13 L5 27 L8 31 L-4 31 L-3 27 L-4.5 13Z" /></g></g>
+          <!-- feathered tail -->
+          <path class="tail" d="M33 41 C24 35 16 28 9 19 C7 16 11 14 15 16 C20 19 22 18 24 21 C27 26 31 31 37 37Z" />
+          <!-- body, neck and head -->
+          <path class="body" d="M34 40 C46 34 64 32 82 33 C90 33 94 28 99 24 C103 21 109 21 113 24 L125 31 C129 33 131 36 130 38 C128 41 124 42 120 42 L111 44 C109 47 107 52 103 56 C96 61 88 60 78 58 C66 57 56 56 46 52 C38 50 30 48 30 44 C29 42 31 41 34 40Z" />
+          <!-- feathered chest and belly -->
+          <path class="fringe" d="M50 54 C53 61 58 61 61 57 C64 63 69 63 72 58 C75 63 81 63 84 58 C88 62 94 61 99 57 L103 56 C96 61 88 60 78 58 C66 57 58 56 50 54Z" />
+          <path class="ear" d="M101 26 C108 25 113 30 112 38 C108 37 103 34 101 26Z" />
+          <circle class="eye" cx="117" cy="30" r="1.3" />
+          <circle class="eye" cx="130" cy="35.4" r="2" />
+          <!-- near legs -->
+          <g transform="translate(94 52)"><g class="leg fr"><path d="M-5 0 L5 0 L3.5 15 L5 27 L8 31 L-4 31 L-2.5 27 L-3.5 15Z" /></g></g>
+          <g transform="translate(48 49)"><g class="leg hr"><path d="M-7 0 L6 0 L4 13 L5 27 L8 31 L-4 31 L-3 27 L-4.5 13Z" /></g></g>
+        </g>
+      </svg>
+    </div>
+  ))}
+</div>
+
+<style>
+  .desert{--ground:#17141D;position:relative;container-type:inline-size;height:max(14rem,22.5vw);margin-top:clamp(1rem,4vw,3rem);overflow:hidden}
+  .land{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .far{fill:#27222F}
+  .near{fill:#1E1A26}
+  .rim{stroke:rgba(196,145,111,.28);stroke-width:1.25;vector-effect:non-scaling-stroke}
+  .ground{fill:var(--ground)}
+
+  /* the dogs: pale against the dark, standing on the line where the floor begins */
+  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .12rem);width:4.6rem;transform:translateX(-8rem);animation:cross 34s linear infinite both paused;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
+  .dog svg{display:block;width:100%;height:auto;overflow:visible}
+  .dog-2{width:3.9rem;animation-delay:2.6s;animation-duration:36s;bottom:calc(100% / 6 - .12rem)}
+  [data-in] .dog{animation-play-state:running}
+  .body,.tail,.fringe,.leg path{fill:#F6EEDD}
+  .back path{fill:#D9C8A6}
+  .tail,.fringe{fill:#EFE3CB}
+  .ear{fill:#E3CFA8}
+  .eye{fill:#2E2A36}
+  .leg{transform-box:fill-box;transform-origin:50% 0;animation:stride .8s ease-in-out infinite both}
+  .fl{animation-delay:0s}  .fr{animation-delay:-.1s}
+  .hl{animation-delay:-.42s} .hr{animation-delay:-.52s}
+  .dog-2 .leg{animation-duration:.74s}
+  .bob{animation:bob .4s ease-in-out infinite}
+  .dog-2 .bob{animation-duration:.37s}
+  @keyframes stride{0%,100%{rotate:-34deg}50%{rotate:30deg}}
+  @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -2.5px}}
+  /* about 13 seconds to cross, then a quiet pause before the next run */
+  @keyframes cross{0%{transform:translateX(-8rem)}38%{transform:translateX(calc(100cqw + 4rem))}100%{transform:translateX(calc(100cqw + 4rem))}}
+  @media (max-width:40rem){
+    .dog{width:3.6rem}.dog-2{width:3rem}
+    @keyframes cross{0%{transform:translateX(-6rem)}33%{transform:translateX(calc(100cqw + 3rem))}100%{transform:translateX(calc(100cqw + 3rem))}}
+    .dog{animation-duration:26s}.dog-2{animation-duration:28s;animation-delay:2.2s}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .dog{animation:none;transform:translateX(30cqw)}
+    .dog-2{transform:translateX(52cqw)}
+    .leg,.bob{animation:none}
+    .leg{rotate:0deg}
+  }
+</style>
+
+<script>
+  function watch() {
+    document.querySelectorAll<HTMLElement>('[data-desert]').forEach((el) => {
+      if ((el as any).__watched) return;
+      (el as any).__watched = true;
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) { if (e.isIntersecting) { el.setAttribute('data-in', ''); io.disconnect(); } }
+      }, { threshold: 0.25 });
+      io.observe(el);
+    });
+  }
+  document.addEventListener('astro:page-load', watch);
+</script>
