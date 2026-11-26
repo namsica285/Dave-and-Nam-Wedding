@@ -9,20 +9,20 @@ export const event = {
   place: 'Oro Valley, Arizona',
   mapUrl: 'https://www.google.com/maps/search/?api=1&query=The+Buttes+at+Reflections+Oro+Valley+AZ',
   sunset: { en: 'Sunset, about 6:11 PM', vi: 'Hoàng hôn, khoảng 6:11 chiều' },
-  rsvpBy: { en: 'Please reply by January 15, 2028', vi: 'Xin hồi âm trước ngày 15 tháng 1, 2028' },
+  rsvpBy: { en: 'Please reply by January 15, 2028', vi: 'Vui lòng hồi âm trước ngày 15 tháng 1, 2028' },
   // Order of ceremony (the tea ceremony is held privately at home the day before)
   ceremony: [
-    { en: 'Prelude', vi: 'Nhạc Dạo Đầu' },
+    { en: 'Prelude', vi: 'Dạo Đầu' },
     { en: 'Processional', vi: 'Tiến Vào Lễ Đường' },
     { en: 'Welcome', vi: 'Lời Chào Mừng' },
-    { en: 'Vows & Rings', vi: 'Lời Thề & Trao Nhẫn' },
+    { en: 'Vows & Rings', vi: 'Lời Thề Ước & Trao Nhẫn' },
     { en: 'Pronouncement', vi: 'Tuyên Bố Thành Hôn' },
     { en: 'Recessional', vi: 'Rời Lễ Đường' },
   ],
   // The day at a glance (home page). Times are not set yet.
   day: [
-    { en: 'Ceremony', vi: 'Lễ Thành Hôn', note: { en: 'Vows and rings', vi: 'Lời thề và trao nhẫn' }, open: 0.5 },
+    { en: 'Ceremony', vi: 'Lễ Thành Hôn', note: { en: 'Vows and rings', vi: 'Lời Thề Ước & Trao Nhẫn' }, open: 0.5 },
     { en: 'Sunset', vi: 'Hoàng Hôn', note: { en: 'Sunset, about 6:11 PM', vi: 'Hoàng hôn, khoảng 6:11 chiều' }, open: 1 },
-    { en: 'Dinner & Dancing', vi: 'Tiệc Cưới', note: { en: 'And desert skies to follow', vi: 'Và bầu trời sa mạc đêm' }, open: 1.12 },
+    { en: 'Dinner & Dancing', vi: 'Tiệc Cưới', note: { en: 'And desert skies to follow', vi: 'Và bầu trời sa mạc về đêm' }, open: 1.12 },
   ],
 } as const;
