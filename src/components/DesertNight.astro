@@ -73,13 +73,13 @@ const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [110
             <g transform="translate(106 56)"><g class="leg back fl"><path d="M-8 0 L8 0 L7 14 C8.5 22 9.5 30 11.5 41 L-8.5 41 C-6.5 30 -6.5 22 -7 14Z" /></g></g>
             <g transform="translate(40 54)"><g class="leg back hl"><path d="M-11 0 L9 0 L8 14 C9.5 24 10.5 32 12.5 43 L-8.5 43 C-6.5 32 -7 24 -9 14Z" /></g></g>
             <!-- long feathered tail plume, carried high and happy -->
-            <g class="tailg"><path class="tail" d="M32 46 C21 47 10 41 5 29 C2 22 5 15 11 16 C12 10 20 9 23 15 C27 17 28 24 31 30 C33 34 36 39 40 42Z" /></g>
+            <g class="tailg"><path class="tail" d="M32 46 C22 47 13 41 8 31 C6 25 8 20 12 20 C13 16 19 15 22 19 C26 21 28 27 31 32 C33 36 36 40 40 43Z" /></g>
             <!-- full, fluffy body, ruff, neck and broad head -->
-            <path class="body" d="M30 45 C30 37 44 33 62 33 C80 32 92 33 102 31 C107 24 114 20 123 20 C133 20 140 26 142 33 L151 40 C154 43 153 47 149 49 L142 51 C141 57 137 62 131 66 C127 73 117 75 109 72 C101 77 89 77 81 72 C71 77 57 76 49 71 C38 71 28 63 28 53 C26 49 28 46 30 45Z" />
+            <path class="body" d="M30 45 C30 37 44 33 62 33 C80 32 92 33 102 31 C107 24 114 20 123 20 C133 20 140 26 142 33 L151 40 C154 43 153 47 149 49 L142 51 C141 57 137 62 131 66 C127 70 117 71 109 69 C101 72 89 72 81 69 C71 72 57 71 49 68 C38 68 28 61 28 53 C26 49 28 46 30 45Z" />
             <!-- scalloped feathering: chest, belly and haunch -->
-            <path class="fringe" d="M112 68 C114 77 122 78 126 71 C130 74 134 70 135 63 C132 66 128 67 124 66 C120 69 116 70 112 68Z" />
-            <path class="fringe" d="M44 70 C46 78 54 79 58 72 C60 79 68 80 72 73 C75 79 83 79 86 73 C89 78 97 78 100 72 C93 75 52 75 44 70Z" />
-            <path class="fringe" d="M29 50 C22 58 26 68 36 69 C32 63 34 57 40 54Z" />
+            <path class="fringe" d="M114 66 C116 72 121 72 125 67 C129 69 132 66 133 62 C130 65 127 65 124 64 C120 67 117 67 114 66Z" />
+            <path class="fringe" d="M46 68 C48 73 54 73 58 69 C61 73 67 73 71 69 C74 73 80 73 84 69 C87 72 93 72 96 69 C90 70 54 70 46 68Z" />
+            <path class="fringe" d="M29 51 C25 57 28 64 35 65 C32 61 34 57 39 54Z" />
             <path class="ear" d="M119 25 C129 22 138 29 136 43 C135 50 127 52 123 45 C119 39 117 31 119 25Z" />
             <circle class="eye" cx="141" cy="33" r="1.7" />
             <circle class="eye" cx="152" cy="41.5" r="2.6" />
@@ -103,7 +103,7 @@ const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [110
 
   /* two dogs of the same size. Their movement is choreographed in the script below: they chase, wait for each
      other, circle, then run off together. The CSS only places and dresses them. */
-  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .15rem);width:6.4rem;transform:translate3d(-30rem,0,0);will-change:transform;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
+  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .15rem);width:5.44rem;transform-origin:50% 100%;transform:translate3d(-30rem,0,0);will-change:transform;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
   .dog svg{display:block;width:100%;height:auto;overflow:visible;will-change:transform}
   .body,.tail,.fringe,.leg path{fill:#F8F2E4}
   .back path{fill:#DCCBA8}
@@ -112,7 +112,7 @@ const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [110
   .eye{fill:#2E2A36}
   .leg{transform-box:fill-box;transform-origin:50% 0}
   .tailg{transform-box:view-box;transform-origin:32px 46px}
-  @media (max-width:40rem){.dog{width:4.8rem}}
+  @media (max-width:40rem){.dog{width:4.08rem}}
   @media (prefers-reduced-motion:reduce){
     .dog{transform:translateX(34cqw)}
     .dog-2{transform:translateX(46cqw)}
@@ -242,7 +242,7 @@ const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [110
         d.tail.style.rotate = `${(Math.sin(d.tailT * 2.6) * (3 + (1 - d.amp) * 9) - d.amp * 6).toFixed(2)}deg`;
         d.bob.style.translate = `0 ${(-Math.abs(Math.sin(P)) * 2.6 * d.amp).toFixed(2)}px`;
         // place: depth moves a dog toward the viewer (down, a touch bigger, in front)
-        const y = -d.y + d.z * 0.45 * 16, s = 1 + d.z * 0.035;
+        const y = -d.y + d.z * 0.45 * 16, s = (1 + d.z * 0.035) * (d.node.classList.contains('dog-2') ? 0.96 : 1);
         d.node.style.transform = `translate3d(${(d.x - 0).toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(3)})`;
         d.node.style.zIndex = String(Math.round(10 + d.z * 5));
         d.svg.style.transform = `scaleX(${d.face.toFixed(3)})`;
