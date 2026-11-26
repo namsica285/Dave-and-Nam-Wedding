@@ -1,7 +1,7 @@
 ---
 // The last thing on the Destination page: the Santa Catalinas as a silhouette darker than the night sky,
-// saguaros on the desert floor, and two small white golden retrievers who run across once the landscape is in view.
-// Layers get darker toward the front. No watercolour: flat silhouettes only, with a faint copper rim on the near range.
+// saguaros, ocotillo and prickly pear on the desert floor, and two white golden retrievers who chase each other
+// across it once the landscape is in view. Layers get darker toward the front. Flat silhouettes only, no watercolour.
 const smooth = (pts: [number, number][], close = true) => {
   let d = `M${pts[0][0]} ${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -12,58 +12,83 @@ const smooth = (pts: [number, number][], close = true) => {
   }
   return close ? d + ' L1600 360 L0 360Z' : d;
 };
-const far: [number, number][] = [[0, 250], [120, 233], [260, 214], [380, 192], [500, 206], [620, 160], [700, 122], [760, 140], [830, 96], [900, 58], [960, 90], [1030, 68], [1110, 116], [1190, 150], [1300, 176], [1420, 205], [1520, 228], [1600, 236]];
-const near: [number, number][] = [[0, 284], [140, 268], [300, 252], [460, 262], [600, 238], [740, 214], [860, 236], [980, 210], [1120, 244], [1260, 262], [1400, 252], [1520, 268], [1600, 276]];
+const far: [number, number][] = [[0, 252], [90, 240], [190, 226], [290, 232], [380, 196], [470, 208], [560, 170], [630, 150], [690, 158], [760, 118], [830, 96], [880, 70], [920, 62], [965, 84], [1010, 74], [1070, 104], [1130, 98], [1200, 140], [1290, 164], [1380, 186], [1470, 214], [1540, 230], [1600, 238]];
+const near: [number, number][] = [[0, 286], [110, 272], [230, 262], [330, 270], [450, 250], [560, 258], [660, 236], [750, 222], [830, 238], [930, 214], [1020, 226], [1110, 246], [1220, 262], [1320, 254], [1420, 266], [1520, 272], [1600, 280]];
 const floorY = 300;
-// saguaro silhouettes made of rounded bars: trunk plus two arms
-const sag = (x: number, h: number) => {
-  const w = h * 0.115, aw = w * 0.85;
-  const L = h * 0.3, R = h * 0.24;
-  const r = (X: number, Y: number, W: number, H: number) => ({ x: +X.toFixed(1), y: +Y.toFixed(1), w: +W.toFixed(1), h: +H.toFixed(1), rx: +(W / 2).toFixed(1) });
-  return [
-    r(x - w / 2, floorY - h, w, h + 4),
-    r(x - w / 2 - L, floorY - h * 0.42 - aw, L + w / 2 + 1, aw),
-    r(x - w / 2 - L, floorY - h * 0.7, aw, h * 0.3 + aw),
-    r(x + w / 2 - 1, floorY - h * 0.55 - aw, R + w / 2, aw),
-    r(x + w / 2 + R - aw, floorY - h * 0.78, aw, h * 0.23 + aw),
-  ];
-};
-const cacti = [[150, 124], [214, 72], [520, 92], [1010, 66], [1332, 132], [1392, 84], [1500, 58]].flatMap(([x, h]) => sag(x, h));
-const mounds: [number, number, number][] = [[330, 300, 40], [660, 300, 30], [820, 300, 46], [1180, 300, 34], [1610, 300, 30]];
+const f = (n: number) => +n.toFixed(1);
+
+// A saguaro the way the real one grows: a straight, ribbed-looking trunk and arms that leave in a smooth elbow
+// and turn skyward. Drawn as thick round-capped strokes so every joint is soft.
+type Sag = { x: number; h: number; arms: ('l' | 'r')[]; lift?: number };
+const saguaros: Sag[] = [
+  { x: 150, h: 128, arms: ['l', 'r'] }, { x: 226, h: 74, arms: ['r'] }, { x: 520, h: 96, arms: ['l'] },
+  { x: 700, h: 48, arms: [] }, { x: 1040, h: 70, arms: ['l', 'r'] }, { x: 1334, h: 138, arms: ['l', 'r'] },
+  { x: 1408, h: 86, arms: ['l'] }, { x: 1512, h: 60, arms: [] },
+];
+const sagPaths = saguaros.map((s) => {
+  const w = s.h * 0.1, aw = w * 0.82;
+  const trunk = `M${s.x} ${floorY + 6} V${f(floorY - s.h + w / 2)}`;
+  const arms = s.arms.map((side) => {
+    const dir = side === 'l' ? -1 : 1;
+    const ya = floorY - s.h * (side === 'l' ? 0.36 : 0.5), reach = s.h * (side === 'l' ? 0.3 : 0.26);
+    const yt = floorY - s.h * (side === 'l' ? 0.72 : 0.8);
+    const x1 = s.x + dir * reach;
+    return `M${s.x} ${f(ya)} C${f(s.x + dir * reach * 0.55)} ${f(ya)} ${f(x1)} ${f(ya - aw * 0.35)} ${f(x1)} ${f(ya - aw * 1.6)} V${f(yt)}`;
+  });
+  return { w: f(w), aw: f(aw), trunk, arms };
+});
+// ocotillo: whips fanning out of one point
+const ocotillos = [[420, 70], [1170, 62], [1575, 52]].map(([x, h]) =>
+  [-.5, -.28, -.08, .12, .3, .5].map((l, i) => `M${x} ${floorY + 3} Q${f(x + l * h * 0.15)} ${f(floorY - h * (.5 + i * .02))} ${f(x + l * h * 0.58)} ${f(floorY - h * (.78 + (i % 3) * .08))}`));
+// prickly pear: a few rounded paddles
+const pears: [number, number, number, number][] = [[300, 296, 11, 14], [316, 286, 10, 13], [333, 297, 10, 12], [880, 297, 10, 13], [896, 285, 9, 12], [1250, 296, 11, 13], [1267, 287, 9, 12]];
+const mounds: [number, number, number][] = [[600, 300, 36], [800, 300, 30], [1100, 300, 40], [1460, 300, 30]];
 ---
-<div class="desert" data-desert role="img" aria-label="Two small white golden retrievers run across a desert at night, beneath the Santa Catalina Mountains.">
+<div class="desert" data-desert role="img" aria-label="Two white golden retrievers chase each other across a desert at night, beneath the Santa Catalina Mountains.">
   <svg class="land" viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
     <path class="far" d={smooth(far)} />
     <path class="near" d={smooth(near)} />
     <path class="rim" fill="none" d={smooth(near, false)} />
     <g class="ground">
       <path d={`M0 ${floorY} H1600 V360 H0Z`} />
-      {mounds.map(([x, y, r]) => <ellipse cx={x} cy={y} rx={r * 1.6} ry={r * 0.45} />)}
-      {cacti.map((c) => <rect x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx} />)}
+      {mounds.map(([x, y, r]) => <ellipse cx={x} cy={y} rx={r * 1.6} ry={r * 0.4} />)}
+      {pears.map(([x, y, rx, ry]) => <ellipse cx={x} cy={y - ry * 0.6} rx={rx} ry={ry} />)}
+    </g>
+    <g class="plants" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      {sagPaths.map((s) => (
+        <g>
+          <path d={s.trunk} stroke-width={s.w} />
+          {s.arms.map((a) => <path d={a} stroke-width={s.aw} />)}
+        </g>
+      ))}
+      {ocotillos.map((stems) => <g stroke-width="2.4">{stems.map((d) => <path d={d} />)}</g>)}
     </g>
   </svg>
 
   {[1, 2].map((n) => (
     <div class={`dog dog-${n}`}>
-      <svg viewBox="0 0 140 90" aria-hidden="true" focusable="false">
-        <g class="bob">
-          <!-- far legs, a little darker for depth -->
-          <g transform="translate(88 52)"><g class="leg back fl"><path d="M-5 0 L5 0 L3.5 15 L5 27 L8 31 L-4 31 L-2.5 27 L-3.5 15Z" /></g></g>
-          <g transform="translate(42 49)"><g class="leg back hl"><path d="M-7 0 L6 0 L4 13 L5 27 L8 31 L-4 31 L-3 27 L-4.5 13Z" /></g></g>
-          <!-- feathered tail -->
-          <path class="tail" d="M33 41 C24 35 16 28 9 19 C7 16 11 14 15 16 C20 19 22 18 24 21 C27 26 31 31 37 37Z" />
-          <!-- body, neck and head -->
-          <path class="body" d="M34 40 C46 34 64 32 82 33 C90 33 94 28 99 24 C103 21 109 21 113 24 L125 31 C129 33 131 36 130 38 C128 41 124 42 120 42 L111 44 C109 47 107 52 103 56 C96 61 88 60 78 58 C66 57 56 56 46 52 C38 50 30 48 30 44 C29 42 31 41 34 40Z" />
-          <!-- feathered chest and belly -->
-          <path class="fringe" d="M50 54 C53 61 58 61 61 57 C64 63 69 63 72 58 C75 63 81 63 84 58 C88 62 94 61 99 57 L103 56 C96 61 88 60 78 58 C66 57 58 56 50 54Z" />
-          <path class="ear" d="M101 26 C108 25 113 30 112 38 C108 37 103 34 101 26Z" />
-          <circle class="eye" cx="117" cy="30" r="1.3" />
-          <circle class="eye" cx="130" cy="35.4" r="2" />
-          <!-- near legs -->
-          <g transform="translate(94 52)"><g class="leg fr"><path d="M-5 0 L5 0 L3.5 15 L5 27 L8 31 L-4 31 L-2.5 27 L-3.5 15Z" /></g></g>
-          <g transform="translate(48 49)"><g class="leg hr"><path d="M-7 0 L6 0 L4 13 L5 27 L8 31 L-4 31 L-3 27 L-4.5 13Z" /></g></g>
-        </g>
-      </svg>
+      <div class="play"><div class="hop">
+        <svg viewBox="0 0 140 90" aria-hidden="true" focusable="false">
+          <g class="bob">
+            <!-- far legs, a little shaded for depth -->
+            <g transform="translate(88 52)"><g class="leg back fl"><path d="M-6 0 L6 0 L4.5 14 C5.5 20 6.5 26 8.5 31 L-4.5 31 C-3.5 26 -3.5 20 -4.5 14Z" /></g></g>
+            <g transform="translate(42 49)"><g class="leg back hl"><path d="M-8 0 L7 0 L5 13 C5.5 20 6.5 26 8.5 31 L-4.5 31 C-3.5 26 -3.5 20 -5 13Z" /></g></g>
+            <!-- feathered tail, carried high and happy -->
+            <path class="tail" d="M30 40 C22 37 14 30 8 21 C6.5 17 9.5 14.5 13 16 C15 13.5 19 14.5 20.5 17.5 C23 18.5 25 21.5 27 25 C30 29 33 33 37 37Z" />
+            <!-- full, fluffy body, neck and head -->
+            <path class="body" d="M32 38 C44 31 62 30 80 31 C89 31 94 26 100 22 C105 19 112 20 116 23 L126 30 C130 32 132 35 131 38 C129 41 125 42 121 42 L113 44 C112 49 109 55 104 59 C96 64 86 64 76 62 C64 61 54 61 44 57 C34 54 26 49 26 43 C26 40 29 39 32 38Z" />
+            <!-- feathered chest, belly and haunch -->
+            <path class="fringe" d="M46 57 C49 64 55 64 58 59 C61 65 67 65 70 60 C73 65 79 65 82 60 C86 65 93 64 98 59 C101 62 105 59 108 55 L104 59 C96 64 86 64 76 62 C64 61 54 61 46 57Z" />
+            <path class="fringe" d="M28 44 C23 50 27 57 34 57 C32 53 34 49 38 47Z" />
+            <path class="ear" d="M100 25 C108 24 114 30 112 40 C107 38 102 34 100 25Z" />
+            <circle class="eye" cx="117" cy="30" r="1.3" />
+            <circle class="eye" cx="130.4" cy="35.2" r="2.1" />
+            <!-- near legs -->
+            <g transform="translate(95 52)"><g class="leg fr"><path d="M-6 0 L6 0 L4.5 14 C5.5 20 6.5 26 8.5 31 L-4.5 31 C-3.5 26 -3.5 20 -4.5 14Z" /></g></g>
+            <g transform="translate(48 49)"><g class="leg hr"><path d="M-8 0 L7 0 L5 13 C5.5 20 6.5 26 8.5 31 L-4.5 31 C-3.5 26 -3.5 20 -5 13Z" /></g></g>
+          </g>
+        </svg>
+      </div></div>
     </div>
   ))}
 </div>
@@ -75,36 +100,47 @@ const mounds: [number, number, number][] = [[330, 300, 40], [660, 300, 30], [820
   .near{fill:#1E1A26}
   .rim{stroke:rgba(196,145,111,.28);stroke-width:1.25;vector-effect:non-scaling-stroke}
   .ground{fill:var(--ground)}
+  .plants{stroke:var(--ground)}
 
-  /* the dogs: pale against the dark, standing on the line where the floor begins */
-  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .12rem);width:4.6rem;transform:translateX(-8rem);animation:cross 34s linear infinite both paused;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
-  .dog svg{display:block;width:100%;height:auto;overflow:visible}
-  .dog-2{width:3.9rem;animation-delay:2.6s;animation-duration:36s;bottom:calc(100% / 6 - .12rem)}
+  /* two dogs of the same size. They share one run across the screen (.dog) but weave around each other (.play),
+     take turns in front, and hop now and then, so it reads as chasing and playing. */
+  .dog{position:absolute;left:0;bottom:calc(100% / 6 - .15rem);width:4.8rem;transform:translateX(-12rem);animation:cross 36s linear infinite both paused;filter:drop-shadow(0 0 5px rgba(255,236,214,.3))}
+  .dog-2{bottom:calc(100% / 6 - .65rem);z-index:1;animation-delay:.6s}
   [data-in] .dog{animation-play-state:running}
-  .body,.tail,.fringe,.leg path{fill:#F6EEDD}
-  .back path{fill:#D9C8A6}
-  .tail,.fringe{fill:#EFE3CB}
-  .ear{fill:#E3CFA8}
+  .dog svg{display:block;width:100%;height:auto;overflow:visible}
+  .play{animation:weave-a 5.4s ease-in-out infinite alternate}
+  .dog-2 .play{animation-name:weave-b;animation-duration:4.6s}
+  .hop{animation:hop-a 3.9s ease-in-out infinite}
+  .dog-2 .hop{animation-name:hop-b;animation-duration:3.3s}
+  .body,.tail,.fringe,.leg path{fill:#F8F2E4}
+  .back path{fill:#DCCBA8}
+  .tail,.fringe{fill:#F1E6CF}
+  .ear{fill:#E6D2AB}
   .eye{fill:#2E2A36}
-  .leg{transform-box:fill-box;transform-origin:50% 0;animation:stride .8s ease-in-out infinite both}
+  .leg{transform-box:fill-box;transform-origin:50% 0;animation:stride .78s ease-in-out infinite both}
   .fl{animation-delay:0s}  .fr{animation-delay:-.1s}
   .hl{animation-delay:-.42s} .hr{animation-delay:-.52s}
-  .dog-2 .leg{animation-duration:.74s}
-  .bob{animation:bob .4s ease-in-out infinite}
-  .dog-2 .bob{animation-duration:.37s}
+  .dog-2 .leg{animation-duration:.72s}
+  .bob{animation:bob .39s ease-in-out infinite}
+  .dog-2 .bob{animation-duration:.36s}
   @keyframes stride{0%,100%{rotate:-34deg}50%{rotate:30deg}}
   @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -2.5px}}
-  /* about 13 seconds to cross, then a quiet pause before the next run */
-  @keyframes cross{0%{transform:translateX(-8rem)}38%{transform:translateX(calc(100cqw + 4rem))}100%{transform:translateX(calc(100cqw + 4rem))}}
+  @keyframes weave-a{from{transform:translateX(-4.2rem)}to{transform:translateX(4.2rem)}}
+  @keyframes weave-b{from{transform:translateX(4rem)}to{transform:translateX(-4rem)}}
+  @keyframes hop-a{0%,70%,100%{transform:translateY(0)}78%{transform:translateY(-1.1rem)}88%{transform:translateY(0)}}
+  @keyframes hop-b{0%,40%,100%{transform:translateY(0)}48%{transform:translateY(-1rem)}58%{transform:translateY(0)}}
+  /* about 14 seconds to cross, then a quiet pause before the next run */
+  @keyframes cross{0%{transform:translateX(-12rem)}39%{transform:translateX(calc(100cqw + 8rem))}100%{transform:translateX(calc(100cqw + 8rem))}}
   @media (max-width:40rem){
-    .dog{width:3.6rem}.dog-2{width:3rem}
-    @keyframes cross{0%{transform:translateX(-6rem)}33%{transform:translateX(calc(100cqw + 3rem))}100%{transform:translateX(calc(100cqw + 3rem))}}
-    .dog{animation-duration:26s}.dog-2{animation-duration:28s;animation-delay:2.2s}
+    .dog{width:3.7rem;animation-duration:26s}
+    @keyframes cross{0%{transform:translateX(-9rem)}34%{transform:translateX(calc(100cqw + 6rem))}100%{transform:translateX(calc(100cqw + 6rem))}}
+    @keyframes weave-a{from{transform:translateX(-3rem)}to{transform:translateX(3rem)}}
+    @keyframes weave-b{from{transform:translateX(3rem)}to{transform:translateX(-3rem)}}
   }
   @media (prefers-reduced-motion:reduce){
-    .dog{animation:none;transform:translateX(30cqw)}
-    .dog-2{transform:translateX(52cqw)}
-    .leg,.bob{animation:none}
+    .dog{animation:none;transform:translateX(34cqw)}
+    .dog-2{transform:translateX(46cqw)}
+    .leg,.bob,.play,.hop{animation:none}
     .leg{rotate:0deg}
   }
 </style>
