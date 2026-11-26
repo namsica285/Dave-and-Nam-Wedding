@@ -1,0 +1,116 @@
+---
+import Base from '../../../layouts/Base.astro';
+import BiHeading from '../../../components/BiHeading.astro';
+import Stage from '../../../components/Stage.astro';
+import SunsetBand from '../../../components/SunsetBand.astro';
+import RidgeLine from '../../../components/RidgeLine.astro';
+import LogoLotus from '../../../components/LogoLotus.astro';
+import { locales, type Locale } from '../../../i18n/ui';
+import { after } from '../../../data/after-vows';
+export function getStaticPaths() { return locales.map((lang) => ({ params: { lang } })); }
+const lang = Astro.params.lang as Locale;
+const t = (o: { en: string; vi: string }) => o[lang];
+const readMore = lang === 'en' ? 'Read more' : 'Xem thêm';
+const back = t(after.back);
+---
+<Base lang={lang} page="destination" night title={lang === 'en' ? 'After the Vows' : 'Sau Lễ Cưới'} description={lang === 'en' ? 'Three ways to spend the weekend after the wedding in southern Arizona.' : 'Ba cách tận hưởng cuối tuần sau lễ cưới ở miền nam Arizona.'}>
+
+  <Stage sky="day">
+    <section class="wrap hero">
+      <a class="back" href={`/${lang}/destination/`}>← {back}</a>
+      <BiHeading level="h1" en={after.title.en} vi={after.title.vi} {lang} />
+      <RidgeLine gid="foil-ridge-av" class="ridge" />
+      <p class="lede">{t(after.lede)}</p>
+      <ul class="jump" aria-label={lang === 'en' ? 'Jump to' : 'Chuyển nhanh đến'}>
+        {after.tempos.map((tp) => <li><a href={`#${tp.id}`}>{t(tp.h)}</a></li>)}
+      </ul>
+    </section>
+  </Stage>
+
+  <Stage sky="golden">
+    {after.tempos.map((tp, i) => (
+      <section class="wrap tempo" id={tp.id} aria-labelledby={`${tp.id}-h`}>
+        <BiHeading id={`${tp.id}-h`} level="h2" en={tp.h.en} vi={tp.h.vi} {lang} />
+        <p class="meta">{t(tp.meta)}</p>
+        <p class="intro">{t(tp.intro)}</p>
+
+        {'stops' in tp && (
+          <>
+            <details class="more">
+              <summary><span class="s">{readMore}</span><span class="h">{lang === 'en' ? 'Show less' : 'Thu gọn'}</span></summary>
+              <ol class="stops">
+                {tp.stops.map((s) => (
+                  <li>
+                    <h3>{s.name}</h3>
+                    <p>{s[lang]}</p>
+                  </li>
+                ))}
+              </ol>
+              <p class="close">{t(tp.close)}</p>
+            </details>
+          </>
+        )}
+        {'body' in tp && (
+          <details class="more">
+            <summary><span class="s">{readMore}</span><span class="h">{lang === 'en' ? 'Show less' : 'Thu gọn'}</span></summary>
+            <div class="body">{tp.body[lang].map((p) => <p>{p}</p>)}</div>
+          </details>
+        )}
+        {i < after.tempos.length - 1 && <hr class="foil-line sep" />}
+      </section>
+    ))}
+  </Stage>
+
+  <SunsetBand compact id="foil-range-av" />
+
+  <Stage sky="night" seed={44}>
+    <section class="wrap end">
+      <LogoLotus gid="foil-av-close" open={0.2} sw={24} wash={false} class="end-lotus" data-open-from="0.15" data-open-to="1" />
+      <a class="btn" href={`/${lang}/destination/`}>← {back}</a>
+      <a class="btn" href={`/${lang}/rsvp/`}>{lang === 'en' ? 'Kindly Reply' : 'Hồi Âm'}</a>
+    </section>
+  </Stage>
+</Base>
+
+<style>
+  :global(main h1){font-size:var(--step-4)}
+  :global(main h2){font-size:var(--step-3)}
+  .hero{display:grid;gap:1rem;padding-block:clamp(2.5rem,7vw,5rem) clamp(2rem,5vw,3.5rem)}
+  .back{font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--copper-ink);padding-block:.75rem;justify-self:start}
+  @media (hover:hover) and (pointer:fine){.back:hover{text-decoration:underline}}
+  .hero :global(.ridge){margin-block:1rem}
+  .lede{font-family:var(--font-display);font-size:var(--step-1);line-height:1.5;max-width:44rem;margin:0}
+  .jump{list-style:none;margin:1rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.75rem}
+  .jump a{display:inline-flex;align-items:center;min-height:48px;padding:.6rem 1.25rem;border:1.5px solid var(--copper);border-radius:999px;text-decoration:none;font-weight:600;font-size:var(--step--1)}
+  @media (hover:hover) and (pointer:fine){.jump a:hover{background:color-mix(in srgb,var(--copper) 16%,transparent)}}
+
+  .tempo{display:grid;gap:1rem;padding-block:clamp(2.5rem,6vw,4.5rem) 0;scroll-margin-top:5rem;justify-items:start}
+  .tempo:last-of-type{padding-bottom:clamp(4rem,9vw,7rem)}
+  .meta{font:600 var(--step-label)/1.4 var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:var(--copper-ink);margin:0}
+  .intro{margin:0;font-size:var(--step-0)}
+  .sep{width:6rem;margin-top:clamp(2.5rem,6vw,4.5rem)}
+
+  /* Read more: tap to open, nothing on hover. Opens smoothly where the browser supports it. */
+  .more{width:100%;max-width:var(--maxw)}
+  .more summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;min-height:48px;padding:.75rem 1.5rem;border:1.5px solid var(--green);border-radius:999px;font:600 var(--step-label)/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;transition:background-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
+  .more summary::-webkit-details-marker{display:none}
+  .more summary:active{transform:scale(.97)}
+  @media (hover:hover) and (pointer:fine){.more summary:hover{background:var(--green);color:var(--ivory)}}
+  .more summary .h{display:none}
+  .more[open] summary .s{display:none}
+  .more[open] summary .h{display:inline}
+  .more[open] summary{margin-bottom:1.5rem}
+  .more[open] > :not(summary){animation:unfold 480ms var(--ease-out) both}
+  @keyframes unfold{from{opacity:0;transform:translateY(8px)}}
+  .stops{list-style:none;margin:0;padding:0;display:grid;gap:2rem;max-width:44rem;position:relative}
+  .stops li{padding-left:2rem;position:relative}
+  .stops li::before{content:"";position:absolute;left:0;top:.6rem;width:.7rem;height:.7rem;background:var(--copper);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+  .stops h3{font-size:var(--step-1);margin-bottom:.4rem}
+  .stops p,.body p{margin:0 0 1em}
+  .body{max-width:44rem}
+  .close{max-width:44rem;margin-top:1.5rem;font-family:var(--font-display);font-style:italic;font-size:var(--step-1);line-height:1.45;color:var(--copper-ink)}
+
+  .end{display:grid;justify-items:center;gap:1.25rem;padding-block:clamp(4rem,10vw,7rem);text-align:center}
+  :global(.end-lotus){width:7rem;height:7.6rem}
+  @media (prefers-reduced-motion:reduce){.more[open] > :not(summary){animation:none}}
+</style>

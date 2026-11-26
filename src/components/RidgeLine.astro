@@ -1,0 +1,15 @@
+---
+// The Santa Catalina ridge drawn as one copper foil line. sky.ts sets --draw as it scrolls into view.
+import FoilDefs from './FoilDefs.astro';
+interface Props { gid: string; light?: boolean; class?: string }
+const { gid, light = true, class: cls } = Astro.props;
+const ridge = 'M0 120 C80 104 140 82 210 86 C270 90 310 52 380 47 C440 43 480 78 548 73 C620 68 650 22 720 17 C780 12 822 60 884 63 C944 66 984 41 1040 45 C1100 49 1150 74 1200 80';
+---
+<svg class:list={['ridgeline', cls]} viewBox="0 0 1200 130" preserveAspectRatio="none" aria-hidden="true" focusable="false" data-draw>
+  <FoilDefs id={gid} w={600} light={light} />
+  <path class="rl" pathLength="1" d={ridge} fill="none" stroke={`url(#${gid})`} stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" />
+</svg>
+<style>
+  .ridgeline{display:block;width:100%;height:clamp(3.5rem,9vw,7rem);overflow:visible}
+  .rl{stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,1))}
+</style>

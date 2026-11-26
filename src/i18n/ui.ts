@@ -3,7 +3,7 @@ export type Locale = (typeof locales)[number];
 
 export const ui = {
   en: {
-    nav: { home: 'Home', details: 'Details', story: 'Our Story', gifts: 'Gifts', faq: 'FAQ', rsvp: 'RSVP' },
+    nav: { home: 'Home', details: 'Details', destination: 'Destination', story: 'Our Story', gifts: 'Gifts', faq: 'FAQ', rsvp: 'RSVP' },
     langSwitch: 'Tiếng Việt',
     langSwitchLabel: 'Đổi sang tiếng Việt',
     menu: 'Menu',
@@ -24,7 +24,7 @@ export const ui = {
     openMap: 'Open in Maps',
   },
   vi: {
-    nav: { home: 'Trang Chủ', details: 'Chi Tiết', story: 'Chuyện Tình Yêu', gifts: 'Mừng Cưới', faq: 'Hỏi Đáp', rsvp: 'Hồi Âm' },
+    nav: { home: 'Trang Chủ', details: 'Chi Tiết', destination: 'Điểm Đến', story: 'Chuyện Tình Yêu', gifts: 'Mừng Cưới', faq: 'Hỏi Đáp', rsvp: 'Hồi Âm' },
     langSwitch: 'English',
     langSwitchLabel: 'Switch to English',
     menu: 'Menu',
@@ -47,12 +47,13 @@ export const ui = {
 } as const;
 
 /** Page slugs shared by both languages. Vietnamese slugs stay English for simple links. */
-export const pages = ['details', 'story', 'gifts', 'faq', 'rsvp'] as const;
+export const pages = ['details', 'destination', 'story', 'gifts', 'faq', 'rsvp'] as const;
 export type PageSlug = (typeof pages)[number];
 
 /** Bilingual page titles: [English, Vietnamese]. Both always shown. */
 export const pageTitles: Record<PageSlug, [string, string]> = {
   details: ['Details', 'Chi Tiết'],
+  destination: ['Destination', 'Điểm Đến'],
   story: ['Our Blooming Story', 'Hành Trình Nở Rộ'],
   gifts: ['Gifts', 'Mừng Cưới'],
   faq: ['FAQ', 'Hỏi Đáp'],
