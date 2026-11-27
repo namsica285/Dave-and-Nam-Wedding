@@ -1,0 +1,167 @@
+---
+// Destination headline that is born from the logo.
+// 1. the full DN monogram appears over the headline
+// 2. the watercolor and copper line fade away while the D and N become type
+// 3. D glides left, N glides right, and the letters between them appear: DESTINATION / ĐIỂM ĐẾN
+// No JS or reduced motion: the plain headline, no logo.
+import { art } from '../data/logo-art';
+import FoilDefs from './FoilDefs.astro';
+interface Props { en: string; vi: string; lang: 'en' | 'vi' }
+const { en, vi, lang } = Astro.props;
+const [main, sub] = lang === 'en' ? [en, vi] : [vi, en];
+const subLang = lang === 'en' ? 'vi' : 'en';
+const chars = [...main];
+const mid = chars.slice(1, -1);
+const c = (mid.length - 1) / 2;
+---
+<div class="dt" data-dt>
+  <h1 class="bi dt-h">
+    <span class="dt-main" lang={lang} aria-label={main}>
+      <span class="dt-l dt-first" aria-hidden="true">{chars[0]}</span>{mid.map((ch, i) => (
+        <span class="dt-l dt-mid" aria-hidden="true" style={`--k:${Math.abs(i - c).toFixed(1)}`}>{ch}</span>
+      ))}<span class="dt-l dt-last" aria-hidden="true">{chars[chars.length - 1]}</span><i class="dt-base" aria-hidden="true"></i>
+    </span>
+    <span class="vi dt-sub" lang={subLang}>{sub}</span>
+  </h1>
+  <svg class="dt-logo" viewBox="300 700 2400 2000" aria-hidden="true" focusable="false">
+    <FoilDefs id="foil-dt" w={1400} light />
+    <defs>
+      <radialGradient id="dt-bleed"><stop offset="0" stop-color="#fff" /><stop offset=".55" stop-color="#fff" /><stop offset=".8" stop-color="#fff" stop-opacity=".5" /><stop offset="1" stop-color="#fff" stop-opacity="0" /></radialGradient>
+      <radialGradient id="dt-bleed-dune"><stop offset="0" stop-color="#fff" /><stop offset=".78" stop-color="#fff" /><stop offset=".9" stop-color="#fff" stop-opacity=".55" /><stop offset="1" stop-color="#fff" stop-opacity="0" /></radialGradient>
+      <mask id="dt-wash-mask" maskUnits="userSpaceOnUse" x="300" y="700" width="2400" height="2000">
+        <circle cx="760" cy="2200" r="1320" fill="url(#dt-bleed-dune)" />
+        <circle cx="2060" cy="1180" r="820" fill="url(#dt-bleed)" />
+      </mask>
+    </defs>
+    <g class="dt-art">
+      <image href="/brand/wash.webp" x="300" y="700" width="2400" height="2000" mask="url(#dt-wash-mask)" />
+      <image href="/brand/ink.webp" x="300" y="700" width="2400" height="2000" />
+    </g>
+    <g class="dt-d" transform="scale(4)" fill="#24342A" fill-rule="evenodd" set:html={art.letters1} />
+    <g class="dt-art" fill="none" stroke="url(#foil-dt)" stroke-width="13.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d={art.ridge} /><path d={art.dune} /><path d={art.p1} /><path d={art.p2} /><path d={art.p3} /><path d={art.p4} />
+    </g>
+    <g class="dt-n" transform="scale(4)" fill="#24342A" fill-rule="evenodd" set:html={art.letters2} />
+  </svg>
+</div>
+<script is:inline>
+  // hide the finished headline before the first paint, so the logo can become it
+  (function () {
+    var el = document.currentScript && document.currentScript.previousElementSibling;
+    if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches) el.classList.add('dt-pre');
+  })();
+</script>
+
+<style>
+  .dt{position:relative}
+  .dt-main{display:block;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;position:relative}
+  .dt-l{display:inline-block;white-space:pre}
+  .dt-base{display:inline-block;width:0;height:0;vertical-align:baseline}
+  .dt-logo{position:absolute;left:0;top:0;width:10rem;height:auto;overflow:visible;pointer-events:none;opacity:0;visibility:hidden}
+  @media (max-width:30rem){.dt-main{letter-spacing:.03em}}
+
+  /* before and during the intro (set by script); without JS none of this applies */
+  .dt-pre .dt-l,.dt-pre .dt-sub{opacity:0}
+  :global(.dt-pre ~ .dt-after){opacity:0}
+</style>
+
+<script>
+  const ease = 'cubic-bezier(.65,0,.35,1)';
+  const soft = 'cubic-bezier(.22,.61,.36,1)';
+
+  function glyph(span: HTMLElement) {
+    // the ink box of one letter as drawn in the headline font
+    const cs = getComputedStyle(span);
+    const cx = document.createElement('canvas').getContext('2d')!;
+    cx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const m = cx.measureText((span.textContent || '').toUpperCase());
+    return { asc: m.actualBoundingBoxAscent, left: m.actualBoundingBoxLeft, right: m.actualBoundingBoxRight };
+  }
+
+  async function run(root: HTMLElement) {
+    if (root.dataset.done) return;
+    root.dataset.done = '1';
+    if (!root.classList.contains('dt-pre')) return;
+    await document.fonts.ready;
+    const svg = root.querySelector<SVGSVGElement>('.dt-logo')!;
+    const first = root.querySelector<HTMLElement>('.dt-first')!;
+    const last = root.querySelector<HTMLElement>('.dt-last')!;
+    const mids = [...root.querySelectorAll<HTMLElement>('.dt-mid')];
+    const sub = root.querySelector<HTMLElement>('.dt-sub')!;
+    const after = [...(root.parentElement?.querySelectorAll<HTMLElement>('.dt-after') || [])];
+    const base = root.querySelector<HTMLElement>('.dt-base')!;
+    const dG = svg.querySelector<SVGGElement>('.dt-d')!, nG = svg.querySelector<SVGGElement>('.dt-n')!;
+    const arts = [...svg.querySelectorAll<SVGGElement>('.dt-art')];
+
+    const box = root.getBoundingClientRect();
+    const baseY = base.getBoundingClientRect().top - box.top;
+    const gF = glyph(first), gL = glyph(last);
+    const fR = first.getBoundingClientRect(), lR = last.getBoundingClientRect();
+    // final ink centres of the first and last letters, relative to the headline block
+    const fin = (r: DOMRect, g: ReturnType<typeof glyph>) => ({ x: r.left - box.left + (g.right - g.left) / 2, y: baseY - g.asc / 2, h: g.asc });
+    const F = fin(fR, gF), L = fin(lR, gL);
+
+    // size the logo: its D a little taller than the headline's D, never running under the menu bar
+    const vbD = { x: 649.5, y: 1251.5, w: 868.8, h: 994.2 }, vbN = { x: 1552.8, y: 1685.4, w: 798.7, h: 873.5 };
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+    const pairCY = (vbD.y + vbN.y + vbN.h) / 2;
+    let u = (F.h * 1.55) / vbD.h; // px per logo unit
+    const cy = (F.y + L.y) / 2;
+    const roomAbove = cy + box.top - header - 12;
+    u = Math.min(u, roomAbove / (pairCY - 760));
+    const pairCX = (vbD.x + vbN.x + vbN.w) / 2;
+    const cx = (F.x + L.x) / 2;
+    const W = 2400 * u;
+    svg.style.width = `${W}px`;
+    svg.style.left = `${cx - (pairCX - 300) * u}px`;
+    svg.style.top = `${cy - (pairCY - 700) * u}px`;
+    svg.style.visibility = 'visible';
+
+    // where the logo's letters sit, in headline coordinates
+    const at = (b: typeof vbD) => ({ x: cx + (b.x + b.w / 2 - pairCX) * u, y: cy + (b.y + b.h / 2 - pairCY) * u, h: b.h * u });
+    const D0 = at(vbD), N0 = at({ ...vbN, h: vbN.h });
+    const from = (el: HTMLElement, A: { x: number; y: number; h: number }, Z: { x: number; y: number; h: number }) => {
+      const r = el.getBoundingClientRect();
+      el.style.transformOrigin = `${Z.x - (r.left - box.left)}px ${Z.y - (r.top - box.top)}px`;
+      return `translate(${A.x - Z.x}px, ${A.y - Z.y}px) scale(${A.h / Z.h})`;
+    };
+    const fFrom = from(first, D0, F), lFrom = from(last, N0, L);
+
+    const anims: Animation[] = [];
+    const go = (el: Element, k: Keyframe[], o: KeyframeAnimationOptions) => { const a = el.animate(k, { fill: 'both', ...o }); anims.push(a); return a; };
+    root.classList.remove('dt-pre');
+
+    // 1. the logo, whole
+    go(svg, [{ opacity: 0, transform: 'scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 1100, easing: soft });
+    // 2. watercolor and line melt away while the letters turn into type
+    arts.forEach((a) => go(a, [{ opacity: 1 }, { opacity: 0 }], { delay: 1900, duration: 1300, easing: soft }));
+    [dG, nG].forEach((a) => go(a, [{ opacity: 1 }, { opacity: 0 }], { delay: 2150, duration: 1050, easing: soft }));
+    go(first, [{ opacity: 0, transform: fFrom }, { opacity: 1, transform: fFrom, offset: .4 }, { opacity: 1, transform: 'none' }], { delay: 2150, duration: 2700, easing: ease });
+    go(last, [{ opacity: 0, transform: lFrom }, { opacity: 1, transform: lFrom, offset: .4 }, { opacity: 1, transform: 'none' }], { delay: 2150, duration: 2700, easing: ease });
+    // 3. the word fills in from the middle as D and N part
+    mids.forEach((m) => {
+      const k = +getComputedStyle(m).getPropertyValue('--k') || 0;
+      go(m, [{ opacity: 0, transform: 'translateY(.12em)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { delay: 3700 + k * 110, duration: 1100, easing: soft });
+    });
+    const end = 3700 + mids.length * 55 + 900;
+    go(sub, [{ opacity: 0, transform: 'translateY(.3em)' }, { opacity: 1, transform: 'none' }], { delay: end, duration: 1000, easing: soft });
+    after.forEach((a, i) => go(a, [{ opacity: 0 }, { opacity: 1 }], { delay: end + 200 + i * 150, duration: 1000, easing: soft }));
+
+    // a scroll, tap or key skips straight to the finished headline
+    const skip = () => { anims.forEach((a) => a.finish()); stop(); };
+    const stop = () => { removeEventListener('wheel', skip); removeEventListener('touchstart', skip); removeEventListener('keydown', skip); };
+    addEventListener('wheel', skip, { passive: true, once: true });
+    addEventListener('touchstart', skip, { passive: true, once: true });
+    addEventListener('keydown', skip, { once: true });
+    Promise.all(anims.map((a) => a.finished)).then(() => {
+      stop();
+      svg.style.visibility = 'hidden';
+      [first, last].forEach((e) => (e.style.transformOrigin = ''));
+      anims.forEach((a) => { try { a.commitStyles(); } catch {} a.cancel(); });
+      [first, last, sub, ...mids, ...after].forEach((e) => { e.style.transform = ''; e.style.filter = ''; e.style.opacity = ''; });
+    }).catch(() => {});
+  }
+
+  const init = () => document.querySelectorAll<HTMLElement>('[data-dt]').forEach((el) => run(el));
+  document.addEventListener('astro:page-load', init);
+</script>

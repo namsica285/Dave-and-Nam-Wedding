@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import BiHeading from '../../../components/BiHeading.astro';
+import DestinationTitle from '../../../components/DestinationTitle.astro';
 import LogoLotus from '../../../components/LogoLotus.astro';
 import Stage from '../../../components/Stage.astro';
 import SunsetBand from '../../../components/SunsetBand.astro';
@@ -22,9 +23,9 @@ const tentative = lang === 'en' ? 'Venue and details are tentative and may chang
   <!-- Day: the idea, the reason, and the facts -->
   <Stage sky="day">
     <section class="hero wrap">
-      <BiHeading level="h1" en={d.title.en} vi={d.title.vi} {lang} />
-      <p class="sub" lang={lang}>{t(d.sub)}</p>
-      <p class="lede">{t(d.lede)}</p>
+      <DestinationTitle en={d.title.en} vi={d.title.vi} {lang} />
+      <p class="sub dt-after" lang={lang}>{t(d.sub)}</p>
+      <p class="lede dt-after">{t(d.lede)}</p>
     </section>
 
     <section class="wrap why" aria-labelledby="why-h">
